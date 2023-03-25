@@ -1,0 +1,126 @@
+from typing import TypeVar
+from typing import Generic
+from typing import Optional
+from typing import Iterable
+from typing import Union
+from typing import Type
+from typing import Any
+from functools import lru_cache
+from sqlalchemy import Column
+from sqlalchemy.orm import Session
+from sqlalchemy.orm import Query
+
+from ..orm import session_factory
+from ..orm import Base
+from ..exceptions import DataBaseException
+
+
+T = TypeVar('T', Base)
+
+class BaseService(Generic[T]):
+
+    def __init__(self, session: Optional[Session] = None, **kwargs):
+        self.__session__ = session or session_factory(**kwargs)
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+        if exc_type is not None:
+            if issubclass(exc_type, ConnectionError):
+                raise DataBaseException("Отсутствует соединение с базой данных")
+
+    @property
+    def session(self) -> Session:
+        return self.__session__
+
+    @property
+    @lru_cache(maxsize=None)
+    def model(self) -> Type[T]:
+        for base in type(self).__orig_bases__:
+            if hasattr(base, '__args__'):
+                return base.__args__[0]
+
+    @property
+    def query(self) -> Query:
+        return self.session.query(self.model)
+
+
+    def commit(self):
+        self.session.commit()
+
+    def close(self):
+        self.session.close()
+
+
+    def get_all(self, get_deleted: bool = False, order_by: Optional[Column] = None) -> Iterable[T]:
+        query = self.query
+        if order_by is not None:
+            query = query.order_by(order_by)
+
+        if not get_deleted and hasattr(self.model, 'deleted'):
+            return query.filter(self.model.deleted == False).all()
+        else:
+            return query.all()
+
+
+    def get_by_code(self, code: Union[int, str]) -> Optional[T]:
+        return self.query.get(code)
+
+
+    def get_filtered(self, expression, order_by: Optional[Column] = None) -> Iterable[T]:
+        query = self.query.filter(*expression)
+        if order_by is not None:
+            query = query.order_by(order_by)
+
+        return query.all()
+
+
+    def create(self, item: T, flush: bool = True) -> T:
+        self.session.add(item)
+        if flush:
+            self.session.flush((item,))
+            
+        return item
+
+
+    def create_for_list(self, items: Iterable[T], flush: bool = True) -> Iterable[T]:
+        self.session.add_all(items)
+        if flush:
+            self.session.flush()
+        
+        return items
+
+
+    def update(self, item: T, flush: bool = True) -> T:
+        item = self.session.merge(item)
+        if flush:
+            self.session.flush((item,))
+
+        return item
+    
+
+    def update_for_list(self, items: Iterable[T], flush: bool = True) -> Iterable[T]:
+        for item in items:
+            self.update(item, flush=False)
+        if flush:
+            self.session.flush()
+
+        return items
+
+
+    def delete(self, item: T, flush: bool = False) -> None:
+        self.session.delete(item)
+        if flush:
+            self.session.flush((item,))
+
+
+    def delete_for_list(self, codes: Iterable[Any], flush: bool = True) -> None:
+        delete_list = [ self.query.get(code) for code in codes ]
+        for item in delete_list:
+            self.delete(item)
+
+        if flush:
+            self.session.flush()
