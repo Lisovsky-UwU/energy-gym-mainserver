@@ -10,7 +10,7 @@ entry_bl = Blueprint('entry', 'entry')
 
 @entry_bl.get('/get-all')
 def get_all_entries():
-    return ControllerFactory.entry().get_all().json()
+    return ControllerFactory.entry().get_all().dict()
 
 
 @entry_bl.post('/get')
@@ -19,9 +19,9 @@ def get_entries():
     controller = ControllerFactory.entry()
 
     if 'user' in data:
-        return controller.get_for_user(data['user']).json()
+        return controller.get_for_user(data['user']).dict()
     elif 'avtime' in data:
-        return controller.get_for_avtime(data['avtime']).json()
+        return controller.get_for_avtime(data['avtime']).dict()
     else:
         raise InvalidRequestException('Отсутствует аргумент user или avtime')
 
@@ -30,4 +30,4 @@ def get_entries():
 def create_entries():
     return ControllerFactory.entry().create_for_list(
         dto.EntryList.parse_obj(request.json)
-    ).json()
+    ).dict()

@@ -5,8 +5,8 @@ from sqlalchemy.orm import create_session
 from ..configmodule import config
 
 
-engine = create_engine(config.postgre.connect_str, future=True)
-Base = declarative_base(bind=engine)
+engine = create_engine(config.database.connection_string, future=True)
+Base = declarative_base()
 
 
 def session_factory(**kwargs):

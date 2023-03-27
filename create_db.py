@@ -19,6 +19,7 @@ def start_base():
                     role         = UserRole.ADMIN.name,
                 )
             )
+            service.commit()
     except Exception as e:
         print(f'Ошибка создания таблиц: {e}')
     else:

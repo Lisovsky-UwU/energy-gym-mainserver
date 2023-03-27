@@ -4,8 +4,6 @@ from datetime import datetime
 from pydantic import BaseModel
 from pydantic import Field
 
-from .common import UserModel
-
 
 def get_current_month():
     cur_time = datetime.now()
@@ -38,4 +36,8 @@ class EntryAddList(BaseModel):
 # ---> Users <---
 
 class UserCreateRequest(BaseModel):
-    data : UserModel
+    student_card : int
+    name         : str
+    group        : str
+    password     : str
+    role         : str
