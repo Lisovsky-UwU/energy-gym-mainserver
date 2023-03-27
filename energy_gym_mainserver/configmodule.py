@@ -6,7 +6,8 @@ from .ext.parametrica.io import YAMLFileConfigIO
 
 class CommonSettings(Fieldset):
 
-    use_dev = Field[bool](True).label('Использовать ли окружение разработки')
+    use_dev         = Field[bool](True).label('Использовать ли окружение разработки')
+    av_month_format = Field[str]('%m-%Y').label('Формат месяца для доступного времени записи в БД')
 
 
 class LocalServerSettings(Fieldset):
