@@ -8,7 +8,7 @@ from .blueprints import api_bl
 def build_app() -> Flask:
     app = Flask(__name__)
 
-    app.register_blueprint(api_bl, url_prefix='/api')
+    app.register_blueprint(api_bl, url_prefix='/api/v1')
 
     if config.common.use_dev:
         CORS(app, allow_origin='*')
