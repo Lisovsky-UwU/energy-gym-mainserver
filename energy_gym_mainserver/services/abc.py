@@ -11,11 +11,10 @@ from sqlalchemy.orm import Session
 from sqlalchemy.orm import Query
 
 from ..orm import session_factory
-from ..orm import Base
 from ..exceptions import DataBaseException
 
 
-T = TypeVar('T', Base)
+T = TypeVar('T')
 
 class BaseService(Generic[T]):
 
@@ -61,17 +60,26 @@ class BaseService(Generic[T]):
             query = query.order_by(order_by)
 
         if not get_deleted and hasattr(self.model, 'deleted'):
-            return query.filter(self.model.deleted == False).all()
-        else:
-            return query.all()
+            query = query.filter(self.model.deleted == False)
+
+        return query.all()
 
 
-    def get_by_code(self, code: Union[int, str]) -> Optional[T]:
-        return self.query.get(code)
+    def get_by_id(self, id: int) -> Optional[T]:
+        return self.query.get(id)
 
 
-    def get_filtered(self, expression, order_by: Optional[Column] = None) -> Iterable[T]:
-        query = self.query.filter(*expression)
+    def get_filtered(
+        self, 
+        expression, 
+        get_deleted: Optional[bool] = False, 
+        order_by: Optional[Column] = None
+    ) -> Iterable[T]:
+        query = self.query.filter(expression)
+
+        if not get_deleted and hasattr(self.model, 'deleted'):
+            query = query.filter(self.model.deleted == False)
+
         if order_by is not None:
             query = query.order_by(order_by)
 
@@ -117,8 +125,8 @@ class BaseService(Generic[T]):
             self.session.flush((item,))
 
 
-    def delete_for_list(self, codes: Iterable[Any], flush: bool = True) -> None:
-        delete_list = [ self.query.get(code) for code in codes ]
+    def delete_for_list(self, id_list: Iterable[Any], flush: bool = True) -> None:
+        delete_list = [ self.query.get(id) for id in id_list ]
         for item in delete_list:
             self.delete(item)
 
