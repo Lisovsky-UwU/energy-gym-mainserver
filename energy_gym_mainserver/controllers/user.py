@@ -24,9 +24,11 @@ class UserDBController:
             )
          
 
-    def create(self, payload: dto.UserCreateRequest):
+    def create(self, payload: dto.UserCreateRequest) -> dto.UserModel:
         with self.service_type() as service:
-            service.create(
+            user = service.create(
                 User(**payload.data.dict())
             )
             service.commit()
+
+            return self.converter.user_to_model(user)

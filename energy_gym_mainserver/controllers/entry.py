@@ -42,22 +42,33 @@ class EntryDBController:
 
 
     def create(self, payload: dto.EntryAddRequest):
-        with self.entry_service_type() as service:
-            service.create(
+        with self.entry_service_type() as service, \
+            self.avtime_service_type() as avtime_service, \
+            self.user_service_type() as user_service:
+            
+            entry = service.create(
                 Entry(**payload.dict())
             )
             service.commit()
 
+            return self.converter.entry_to_model(
+                _from         = entry,
+                selected_time = avtime_service.get_by_id(entry.selected_time),
+                user          = user_service.get_by_id(entry.user),
+            )
+
 
     def create_for_list(self, payload: dto.EntryAddList):
         with self.entry_service_type() as service:
-            service.create_for_list(
+            entry_list = service.create_for_list(
                 [
                     Entry(**entry.dict())
                     for entry in payload.data
                 ]
             )
             service.commit()
+
+            return self.__to_list_model__(entry_list)
 
 
     def __to_list_model__(self, data: Iterable[Entry]) -> dto.EntryList:
