@@ -5,7 +5,7 @@ from .abc import BaseService
 from ..orm import Entry
 
 
-class EntriesService(BaseService[Entry]):
+class EntryDBService(BaseService[Entry]):
     
     def get_for_av_time(self, av_time_id: int, get_deleted: Optional[bool] = False) -> Iterable[Entry]:
         return self.get_filtered( 

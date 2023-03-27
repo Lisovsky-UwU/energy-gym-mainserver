@@ -2,14 +2,14 @@ from typing import Type
 from typing import Optional
 
 from .converter import DTOConverter
-from ..services import UsersService
+from ..services import UserDBService
 from ..models import dto
 from ..orm import User
 
 
 class UserDBController:
 
-    def __init__(self, service_type: Type[UsersService], converter: DTOConverter):
+    def __init__(self, service_type: Type[UserDBService], converter: DTOConverter):
         self.service_type = service_type
         self.converter = converter
 

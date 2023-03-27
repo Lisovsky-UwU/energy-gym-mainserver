@@ -7,7 +7,7 @@ from ..orm import AvailableTime
 from ..configmodule import config
 
 
-class AvailableTimeService(BaseService[AvailableTime]):
+class AvailableTimeDBService(BaseService[AvailableTime]):
     
     def get_for_current_month(self, get_deleted: Optional[bool] = False) -> Iterable[AvailableTime]:
         return self.get_filtered(

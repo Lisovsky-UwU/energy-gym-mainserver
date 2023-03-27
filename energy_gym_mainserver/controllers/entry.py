@@ -4,9 +4,9 @@ from typing import Optional
 from typing import Iterable
 
 from .converter import DTOConverter
-from ..services import EntriesService
-from ..services import AvailableTimeService
-from ..services import UsersService
+from ..services import EntryDBService
+from ..services import AvailableTimeDBService
+from ..services import UserDBService
 from ..models import dto
 from ..orm import Entry
 
@@ -15,9 +15,9 @@ class EntryDBController:
 
     def __init__(
         self, 
-        entry_service_type: Type[EntriesService], 
-        avtime_service_type: Type[AvailableTimeService], 
-        user_service_type: Type[UsersService], 
+        entry_service_type: Type[EntryDBService], 
+        avtime_service_type: Type[AvailableTimeDBService], 
+        user_service_type: Type[UserDBService], 
         converter: DTOConverter
     ):
         self.entry_service_type = entry_service_type

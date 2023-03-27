@@ -2,8 +2,8 @@ from typing import Optional
 from typing import Type
 
 from .converter import DTOConverter
-from ..services import AvailableTimeService
-from ..services import EntriesService
+from ..services import AvailableTimeDBService
+from ..services import EntryDBService
 from ..models import dto
 
 
@@ -11,8 +11,8 @@ class AvailableTimeDBController:
     
     def __init__(
         self, 
-        av_service_type: Type[AvailableTimeService], 
-        entry_service_type: Type[EntriesService],
+        av_service_type: Type[AvailableTimeDBService], 
+        entry_service_type: Type[EntryDBService],
         converter: DTOConverter
     ):
         self.av_service_type = av_service_type

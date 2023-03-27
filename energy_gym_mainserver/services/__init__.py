@@ -1,3 +1,3 @@
-from .available_time import AvailableTimeService
-from .entries import EntriesService
-from .users import UsersService
+from .available_time import AvailableTimeDBService
+from .entry import EntryDBService
+from .user import UserDBService
