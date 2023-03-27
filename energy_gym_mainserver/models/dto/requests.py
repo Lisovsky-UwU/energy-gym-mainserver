@@ -1,4 +1,5 @@
 from typing import Iterable
+from typing import List
 from datetime import datetime
 from pydantic import BaseModel
 from pydantic import Field
@@ -9,16 +10,6 @@ from .common import UserModel
 def get_current_month():
     cur_time = datetime.now()
     return f'{cur_time.month}-{cur_time.year}'
-
-
-# ---> Common <---
-
-class ItemDeleteRequest(BaseModel):
-    code : int
-
-
-class ItemGetByCodeRequest(BaseModel):
-    code : int
 
 
 # ---> Available Time <---
@@ -37,15 +28,11 @@ class AvailableTimeListAddRequest(BaseModel):
 
 class EntryAddRequest(BaseModel):
     selected_time : int
-    user_code     : int
+    user_id       : int
 
 
-class EntryListInTimeRequest(BaseModel):
-    available_time : int
-
-
-class EntryListUserRequest(BaseModel):
-    user_code : int
+class EntryAddList(BaseModel):
+    data : List[EntryAddRequest]
 
 
 # ---> Users <---

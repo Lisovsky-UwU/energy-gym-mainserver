@@ -8,8 +8,6 @@ from .common import UserModel
 
 # ---> Common <---
 
-class ItemsDeletedResponse(BaseModel):
-    result_text : str = 'Запись успешно удалена'
 
 
 # ---> Available Time <---

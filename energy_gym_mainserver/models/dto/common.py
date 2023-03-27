@@ -1,23 +1,31 @@
+from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
 
 
 class UserModel(BaseModel):
-    code  : int
-    name  : str
-    group : str
+    id           : Optional[int]
+    name         : str
+    group        : str
+    student_card : int
+
+UserModel.Config.orm_mode = True
 
 
 class AvailableTimeModel(BaseModel):
-    code              : int
+    id                : Optional[int]
     weektime          : str
     number_of_persons : int
-    free_seats        : int
+    free_seats        : Optional[int]
     month             : str
+
+AvailableTimeModel.Config.orm_mode = True
 
 
 class EntryModel(BaseModel):
-    code          : int
+    id            : Optional[int]
     create_time   : datetime
-    selected_time : AvailableTimeModel
-    user          : UserModel
+    selected_time : Optional[AvailableTimeModel]
+    user          : Optional[UserModel]
+
+EntryModel.Config.orm_mode = True
