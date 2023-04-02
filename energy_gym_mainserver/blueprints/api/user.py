@@ -3,6 +3,7 @@ from flask import request
 
 from ...controllers import ControllerFactory
 from ...models import dto
+from ...exceptions import InvalidRequestException
 
 
 user_bl = Blueprint('user', 'user')
@@ -14,6 +15,11 @@ def get_all_users():
 
 @user_bl.post('/create')
 def create_user():
+    try:
+        data = request.get_json()
+    except:
+        raise InvalidRequestException('Тело запроса должно быть в формате JSON')
+
     return ControllerFactory.user().create(
-        dto.UserCreateRequest.parse_obj(request.json)
+        dto.UserCreateRequest.parse_obj(data)
     ).dict()

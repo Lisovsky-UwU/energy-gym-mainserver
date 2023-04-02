@@ -15,7 +15,11 @@ def get_all_entries():
 
 @entry_bl.post('/get')
 def get_entries():
-    data = request.json
+    try:
+        data = request.get_json()
+    except:
+        raise InvalidRequestException('Тело запроса должно быть в формате JSON')
+    
     controller = ControllerFactory.entry()
 
     if 'user' in data:
