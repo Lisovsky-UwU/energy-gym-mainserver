@@ -2,7 +2,9 @@ import json
 import flask
 
 from . import api
+from ...exceptions import TokenException
 from ...exceptions import InvalidRequestException
+from ...configmodule import config
 
 
 @api.after_request
@@ -15,6 +17,12 @@ def response_format(response: flask.Response):
 
 @api.before_request
 def json_chek():
+    token = flask.request.headers.get('Token')
+    if token is None:
+        raise TokenException('Отсутствует токен в заголовке запроса')
+    if token != config.common.token:
+        raise TokenException('Неверный токен')
+
     if flask.request.data and not flask.request.is_json:
         raise InvalidRequestException('Тело запроса должно быть в формате JSON')
 

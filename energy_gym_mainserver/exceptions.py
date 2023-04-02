@@ -12,3 +12,8 @@ class InvalidRequestException(APIException):
 
 class DataBaseException(EnergyGymMainServerException):
     '''Исключение при при ошибке в работе с базой данных'''
+
+
+class TokenException(APIException):
+    '''Исключение при неверном токене или его отсутствии'''
+    status_code = 401
