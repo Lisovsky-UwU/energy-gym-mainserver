@@ -1,7 +1,6 @@
 from energy_gym_mainserver.orm import Base
 from energy_gym_mainserver.orm import engine
 from energy_gym_mainserver.orm import User
-from energy_gym_mainserver.models import UserRole
 from energy_gym_mainserver.services import UserDBService
 
 
@@ -16,7 +15,7 @@ def start_base():
                     name         = 'ADMIN',
                     group        = '-',
                     password     = 'hexReGON14',
-                    role         = UserRole.ADMIN.name,
+                    role         = 'ADMIN',
                 )
             )
             service.commit()
