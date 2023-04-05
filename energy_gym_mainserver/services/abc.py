@@ -143,8 +143,12 @@ class BaseService(Generic[T]):
             self.session.flush((item,))
 
 
-    def delete_for_list(self, id_list: Iterable[Any], flush: bool = True) -> None:
+    def delete_for_id_list(self, id_list: Iterable[Any], flush: bool = True) -> None:
         delete_list = [ self.query.get(id) for id in id_list ]
+        self.delete_for_list(delete_list, flush)
+
+
+    def delete_for_list(self, delete_list: Iterable[T], flush: bool = True) -> None:
         for item in delete_list:
             self.delete(item)
 
