@@ -20,4 +20,4 @@ class Token(Base):
     create_time   = Column(DateTime, nullable=False, default=datetime.now)
     deleted       = Column(Boolean, default=False)
 
-    users       = relationship('User', back_populates='tokens')
+    users       = relationship('User', back_populates='tokens', uselist=False)

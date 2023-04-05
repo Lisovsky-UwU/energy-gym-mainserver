@@ -20,4 +20,4 @@ class Ads(Base):
     user            = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
     deleted         = Column(Boolean, default=False)
 
-    users           = relationship('User', back_populates='ads')
+    users           = relationship('User', back_populates='ads', uselist=False)

@@ -19,6 +19,6 @@ class User(Base):
     role          = Column(String(15), nullable=False, index=True)
     deleted       = Column(Boolean, default=False)
 
-    ads           = relationship('Ads', uselist=False, back_populates='users')
-    tokens        = relationship('Token', uselist=False, back_populates='users')
-    entries       = relationship('Entry', uselist=False, back_populates='users')
+    ads           = relationship('Ads', back_populates='users',  uselist=True)
+    tokens        = relationship('Token', back_populates='users',  uselist=True)
+    entries       = relationship('Entry', back_populates='users',  uselist=True)

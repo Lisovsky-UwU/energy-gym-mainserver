@@ -19,5 +19,5 @@ class Entry(Base):
     user            = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
     deleted         = Column(Boolean, default=False)
 
-    available_time  = relationship('AvailableTime', back_populates='entries')
-    users           = relationship('User', back_populates='entries')
+    available_time  = relationship('AvailableTime', back_populates='entries', uselist=False)
+    users           = relationship('User', back_populates='entries', uselist=False)

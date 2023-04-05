@@ -23,4 +23,4 @@ class AvailableTime(Base):
     month               = Column(String, nullable=False, default=cur_month_fabric, index=True)
     deleted             = Column(Boolean, default=False)
 
-    entries             = relationship('Entry', uselist=False, back_populates='available_time')
+    entries             = relationship('Entry', back_populates='available_time', uselist=True)
