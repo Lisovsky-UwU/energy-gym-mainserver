@@ -85,6 +85,24 @@ class EntryDBController:
             return self.__to_list_model__(entry_list)
 
 
+    def delete_for_id_list(self, id_list: List[int], user_id: int, delete_any: bool = False) -> dto.DeleteResult:
+        with self.entry_service_type() as service:
+            result_dict = dict()
+
+            for entry_id in id_list:
+                entry = service.get_by_id(entry_id)
+
+                if entry is None or entry.deleted or (not delete_any and entry.user != user_id):
+                    result_dict[entry_id] = 'Запись не найдена'
+
+                else:
+                    service.delete(entry, flush=True)
+                    result_dict[entry_id] = 'Успешно'
+            
+            service.commit()
+            return dto.DeleteResult(result = result_dict)
+
+
     def from_orm_to_model(self, _from: Entry) -> dto.EntryModel:
         return dto.EntryModel(
             id            = _from.id,

@@ -6,6 +6,7 @@ from .requests import AvailableTimeListAddRequest
 from .requests import EntryAddRequest
 from .requests import EntryAddList
 from .requests import UserCreateRequest
+from .responses import DeleteResult
 from .responses import AvailableTimeList
 from .responses import EntryList
 from .responses import UserList
