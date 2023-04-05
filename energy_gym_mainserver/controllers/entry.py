@@ -44,7 +44,7 @@ class EntryDBController:
             )
             service.commit()
 
-            return self.__from_orm_to_model__(entry)
+            return self.from_orm_to_model(entry)
 
 
     def create_by_user(self, user_id: int, selected_times_id: List[int]) -> dto.EntryList:
@@ -52,13 +52,12 @@ class EntryDBController:
             raise LogicError(f'Максимальное число записей для одного пользователя - {config.common.max_entry_count}')
         
         with self.entry_service_type() as entry_service:
+            self.avtime_controller.check_create_for_id_list(selected_times_id)
+
             entry_list = entry_service.get_for_user(user_id)
             if len(entry_list) > 0:
                 entry_service.delete_for_list(entry_list)
 
-            if not self.avtime_controller.all_id_list_in_db(selected_times_id):
-                raise LogicError('Не найдено одно из доступных времен для записи')
-            
             entry_list = entry_service.create_for_list(
                 [
                     Entry(
@@ -86,21 +85,21 @@ class EntryDBController:
             return self.__to_list_model__(entry_list)
 
 
+    def from_orm_to_model(self, _from: Entry) -> dto.EntryModel:
+        return dto.EntryModel(
+            id            = _from.id,
+            create_time   = _from.create_time,
+            selected_time = self.avtime_controller.from_orm_to_model(_from.available_time),
+            user          = _from.users,
+        )
+
+
     def __to_list_model__(self, data: Iterable[Entry]) -> dto.EntryList:
         return dto.EntryList( data = self.__to_models__(data) )
          
     
     def __to_models__(self, data: Iterable[Entry]) -> List[dto.EntryModel]:
         return [
-            self.__from_orm_to_model__(entry)
+            self.from_orm_to_model(entry)
             for entry in data
         ]
-    
-
-    def __from_orm_to_model__(self, _from: Entry) -> dto.EntryModel:
-        return dto.EntryModel(
-            id            = _from.id,
-            create_time   = _from.create_time,
-            selected_time = _from.available_time,
-            user          = _from.users,
-        )
