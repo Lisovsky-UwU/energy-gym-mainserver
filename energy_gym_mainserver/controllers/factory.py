@@ -1,7 +1,6 @@
 from .available_time import AvailableTimeDBController
 from .entry import EntryDBController
 from .user import UserDBController
-from .converter import DTOConverter
 from ..services import AvailableTimeDBService
 from ..services import EntryDBService
 from ..services import UserDBService
@@ -25,6 +24,5 @@ class ControllerFactory:
     @classmethod
     def user(cls) -> UserDBController:
         return UserDBController(
-            UserDBService,
-            DTOConverter()
+            UserDBService
         )
