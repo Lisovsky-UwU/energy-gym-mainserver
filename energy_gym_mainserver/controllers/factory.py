@@ -19,9 +19,7 @@ class ControllerFactory:
     def entry(cls) -> EntryDBController:
         return EntryDBController(
             EntryDBService,
-            AvailableTimeDBService,
-            UserDBService,
-            DTOConverter()
+            cls.avtime()
         )
     
     @classmethod

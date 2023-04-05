@@ -3,10 +3,10 @@ from typing import List
 from typing import Optional
 from typing import Iterable
 
-from .converter import DTOConverter
+from . import AvailableTimeDBController
+from ..configmodule import config
+from ..exceptions import LogicError
 from ..services import EntryDBService
-from ..services import AvailableTimeDBService
-from ..services import UserDBService
 from ..models import dto
 from ..orm import Entry
 
@@ -15,15 +15,11 @@ class EntryDBController:
 
     def __init__(
         self, 
-        entry_service_type: Type[EntryDBService], 
-        avtime_service_type: Type[AvailableTimeDBService], 
-        user_service_type: Type[UserDBService], 
-        converter: DTOConverter
+        entry_service_type: Type[EntryDBService],
+        avtime_controller: AvailableTimeDBController
     ):
         self.entry_service_type = entry_service_type
-        self.avtime_service_type = avtime_service_type
-        self.user_service_type = user_service_type
-        self.converter = converter
+        self.avtime_controller = avtime_controller
 
     
     def get_all(self, get_deleted: Optional[bool] = False) -> dto.EntryList:
@@ -42,23 +38,42 @@ class EntryDBController:
 
 
     def create(self, payload: dto.EntryAddRequest):
-        with self.entry_service_type() as service, \
-            self.avtime_service_type() as avtime_service, \
-            self.user_service_type() as user_service:
-            
+        with self.entry_service_type() as service:
             entry = service.create(
                 Entry(**payload.dict())
             )
             service.commit()
 
-            return self.converter.entry_to_model(
-                _from         = entry,
-                selected_time = avtime_service.get_by_id(entry.selected_time),
-                user          = user_service.get_by_id(entry.user),
+            return self.__from_orm_to_model__(entry)
+
+
+    def create_by_user(self, user_id: int, selected_times_id: List[int]) -> dto.EntryList:
+        if len(selected_times_id) > config.common.max_entry_count:
+            raise LogicError(f'Максимальное число записей для одного пользователя - {config.common.max_entry_count}')
+        
+        with self.entry_service_type() as entry_service:
+            entry_list = entry_service.get_for_user(user_id)
+            if len(entry_list) > 0:
+                entry_service.delete_for_list(entry_list)
+
+            if not self.avtime_controller.all_id_list_in_db(selected_times_id):
+                raise LogicError('Не найдено одно из доступных времен для записи')
+            
+            entry_list = entry_service.create_for_list(
+                [
+                    Entry(
+                        selected_time = selected_time,
+                        user          = user_id
+                    )
+                    for selected_time in selected_times_id
+                ]
             )
+            entry_service.commit()
+
+            return self.__to_list_model__(entry_list)
 
 
-    def create_for_list(self, payload: dto.EntryAddList):
+    def create_for_list(self, payload: dto.EntryAddList) -> dto.EntryList:
         with self.entry_service_type() as service:
             entry_list = service.create_for_list(
                 [
@@ -76,13 +91,16 @@ class EntryDBController:
          
     
     def __to_models__(self, data: Iterable[Entry]) -> List[dto.EntryModel]:
-        with self.avtime_service_type() as avtime_service, \
-            self.user_service_type() as user_service:
-            return [
-                self.converter.entry_to_model(
-                    _from         = entry,
-                    selected_time = avtime_service.get_by_id(entry.selected_time),
-                    user          = user_service.get_by_id(entry.user),
-                )
-                for entry in data
-            ]
+        return [
+            self.__from_orm_to_model__(entry)
+            for entry in data
+        ]
+    
+
+    def __from_orm_to_model__(self, _from: Entry) -> dto.EntryModel:
+        return dto.EntryModel(
+            id            = _from.id,
+            create_time   = _from.create_time,
+            selected_time = _from.available_time,
+            user          = _from.users,
+        )
