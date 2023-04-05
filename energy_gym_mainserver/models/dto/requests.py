@@ -4,10 +4,11 @@ from datetime import datetime
 from pydantic import BaseModel
 from pydantic import Field
 
+from ...configmodule import config
+
 
 def get_current_month():
-    cur_time = datetime.now()
-    return f'{cur_time.month}-{cur_time.year}'
+    return datetime.now().strftime(config.common.av_month_format)
 
 
 # ---> Available Time <---
@@ -26,7 +27,7 @@ class AvailableTimeListAddRequest(BaseModel):
 
 class EntryAddRequest(BaseModel):
     selected_time : int
-    user_id       : int
+    user          : int
 
 
 class EntryAddList(BaseModel):
