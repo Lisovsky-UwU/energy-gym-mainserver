@@ -17,3 +17,7 @@ class DataBaseException(EnergyGymMainServerException):
 class TokenException(APIException):
     '''Исключение при неверном токене или его отсутствии'''
     status_code = 401
+
+
+class LogicError(APIException):
+    '''Исключение при ошибке в логике запроса'''

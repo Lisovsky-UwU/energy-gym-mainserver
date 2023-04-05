@@ -11,6 +11,7 @@ class CommonSettings(Fieldset):
     use_dev         = Field[bool](True).label('Использовать ли окружение разработки')
     av_month_format = Field[str]('%m-%Y').label('Формат месяца для доступного времени записи в БД')
     token           = Field[str](str(uuid4())).label('Токен для доступа к серверу')
+    max_entry_count = Field[int](3).label('Максимальное количество записей для одного пользователя')
 
 
 class LocalServerSettings(Fieldset):
