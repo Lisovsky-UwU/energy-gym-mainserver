@@ -14,7 +14,8 @@ def get_current_month():
 # ---> Available Time <---
 
 class AvailableTimeAddRequest(BaseModel):
-    weektime            : str
+    weekday             : int
+    time                : str
     number_of_persons   : int
     month               : str = Field(default_factory=get_current_month)
 

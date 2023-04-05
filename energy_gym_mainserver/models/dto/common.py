@@ -14,7 +14,8 @@ UserModel.Config.orm_mode = True
 
 class AvailableTimeModel(BaseModel):
     id                : Optional[int]
-    weektime          : str
+    weekday           : int
+    time              : str
     number_of_persons : int
     free_seats        : Optional[int]
     month             : str
