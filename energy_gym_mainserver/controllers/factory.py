@@ -12,9 +12,7 @@ class ControllerFactory:
     @classmethod
     def avtime(cls) -> AvailableTimeDBController:
         return AvailableTimeDBController(
-            AvailableTimeDBService,
-            EntryDBService,
-            DTOConverter()
+            AvailableTimeDBService
         )
     
     @classmethod
