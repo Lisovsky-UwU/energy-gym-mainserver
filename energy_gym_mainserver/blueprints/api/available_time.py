@@ -1,5 +1,7 @@
 from flask import Blueprint
+from flask import request
 
+from ...models import dto
 from ...controllers import ControllerFactory
 
 
@@ -8,7 +10,14 @@ avtime_bl = Blueprint('avtime', 'avtime')
 
 @avtime_bl.post('/create')
 def create_avtime():
-    return {'result': 'in develop...'}
+    return ControllerFactory.avtime().create(
+        dto.AvailableTimeListAddRequest(
+            data = list(
+                dto.AvailableTimeAddRequest.parse_obj(avtime)
+                for avtime in request.json
+            )
+        )
+    ).dict()
 
 
 @avtime_bl.get('/get')

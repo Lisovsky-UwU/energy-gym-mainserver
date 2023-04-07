@@ -3,7 +3,6 @@ from flask import request
 
 from ...controllers import ControllerFactory
 from ...models import dto
-from ...exceptions import InvalidRequestException
 
 
 user_bl = Blueprint('user', 'user')
@@ -11,41 +10,52 @@ user_bl = Blueprint('user', 'user')
 
 @user_bl.post('/create')
 def create_user():
-    try:
-        data = request.get_json()
-    except:
-        raise InvalidRequestException('Тело запроса должно быть в формате JSON')
-
     return ControllerFactory.user().create(
-        dto.UserCreateRequest.parse_obj(data)
+        dto.UserCreateRequest.parse_obj(request.get_json())
     ).dict()
 
 
 @user_bl.get('/get')
 def get_user():
-    return {'result': 'in develop...'}
+    return ControllerFactory.user().get(
+        int(request.headers.get('user-id'))
+    ).dict()
 
 
 @user_bl.get('/get-any')
 def get_any_users():
-    return ControllerFactory.user().get_all().dict()
+    controller = ControllerFactory.user()
+    try:
+        data = request.get_json()
+    except:
+        return controller.get_all().dict()
+
+    if 'user' in data:
+        return controller.get(data['user']).dict()
+    else:
+        return controller.get_all().dict()
 
 
 @user_bl.put('/edit')
 def edit_entries():
-    return {'result': 'in develop...'}
+    return ControllerFactory.user().user_data_update(
+        int(request.headers.get('user-id')),
+        dto.UserDataUpdateRequest.parse_obj(request.get_json())
+    ).dict()
 
 
 @user_bl.put('/edit-any')
 def edit_any_entries():
-    return {'result': 'in develop...'}
-
-
-@user_bl.delete('/delete')
-def delete_entries():
-    return {'result': 'in develop...'}
+    return ControllerFactory.user().update_any_user_data(
+        [ 
+            dto.UserAnyDataUpdateRequest(**data)
+            for data in request.get_json()
+        ]
+    ).dict()
 
 
 @user_bl.delete('/delete-any')
 def delete_any_entries():
-    return {'result': 'in develop...'}
+    return ControllerFactory.user().delete_for_id_list(
+        request.get_json()
+    ).dict()
