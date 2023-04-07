@@ -1,5 +1,7 @@
 import json
 import flask
+from functools import wraps
+from pydantic import BaseModel
 
 from . import api
 from ...exceptions import TokenException
@@ -7,8 +9,16 @@ from ...exceptions import InvalidRequestException
 from ...configmodule import config
 
 
+def format_response(func):
+    @wraps(func)
+    def decorator(*args, **kwargs):
+        return flask.jsonify(func(*args, **kwargs))
+    
+    return decorator
+
+
 @api.after_request
-def response_format(response: flask.Response):
+def response_format_handler(response: flask.Response):
     body = response.json
     if not (isinstance(body, dict) and body.get('error', False)):
         response.data = json.dumps({'error': False, 'data': body})
