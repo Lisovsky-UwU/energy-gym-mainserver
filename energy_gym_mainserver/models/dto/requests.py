@@ -57,3 +57,7 @@ class UserDataUpdateRequest(BaseModel):
     name         : Optional[str]
     group        : Optional[str]
     password     : Optional[str]
+
+
+class UserAnyDataUpdateRequest(UserDataUpdateRequest):
+    id : int
