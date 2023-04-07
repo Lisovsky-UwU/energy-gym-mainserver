@@ -1,5 +1,7 @@
 from typing import Type
 from typing import List
+from typing import Dict
+from typing import Tuple
 from typing import Optional
 
 from ..exceptions import LogicError
@@ -14,13 +16,11 @@ class UserDBController:
         self.service_type = service_type
 
     
-    def get_all(self, get_deleted: Optional[bool] = False) -> dto.UserList:
+    def get_all(self, get_deleted: Optional[bool] = False) -> Tuple[dto.UserModel]:
         with self.service_type() as service:
-            return dto.UserList(
-                data = [
-                    dto.UserModel.from_orm(user)
-                    for user in service.get_all(get_deleted)
-                ]
+            return tuple(
+                dto.UserModel.from_orm(user)
+                for user in service.get_all(get_deleted)
             )
          
 
@@ -54,7 +54,7 @@ class UserDBController:
             return dto.UserModel.from_orm(user)
 
 
-    def update_any_user_data(self, data: List[dto.UserAnyDataUpdateRequest]) -> dto.UserList:
+    def update_any_user_data(self, data: List[dto.UserAnyDataUpdateRequest]) -> Tuple[dto.UserModel]:
         with self.service_type() as service:
             result_list = list()
 
@@ -70,15 +70,13 @@ class UserDBController:
             
             service.commit()
 
-            return dto.UserList(
-                data = [
-                    dto.UserModel.from_orm(user)
-                    for user in result_list
-                ]
+            return tuple(
+                dto.UserModel.from_orm(user)
+                for user in result_list
             )
         
     
-    def delete_for_id_list(self, id_list: List[int]) -> dto.DeleteResult:
+    def delete_for_id_list(self, id_list: List[int]) -> Dict[int, str]:
         with self.service_type() as service:
             result_dict = dict()
 
@@ -94,7 +92,7 @@ class UserDBController:
             
             service.commit()
 
-            return dto.DeleteResult(result = result_dict)
+            return result_dict
 
 
     def __correlate_orm__(self, user: User, data: dto.UserDataUpdateRequest) -> User:

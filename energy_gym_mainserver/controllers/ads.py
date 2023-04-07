@@ -1,5 +1,7 @@
 from typing import Type
 from typing import List
+from typing import Tuple
+from typing import Dict
 from datetime import datetime
 
 from ..exceptions import LogicError
@@ -28,13 +30,11 @@ class AdsDBController:
             return dto.AdsModel.from_orm(ads)
 
 
-    def get_all(self, get_deleted: bool = False):
+    def get_all(self, get_deleted: bool = False) -> Tuple[dto.AdsModel]:
         with self.service_type() as service:
-            return dto.AdsList(
-                data = list(
-                    dto.AdsModel.from_orm(ads_db)
-                    for ads_db in service.get_all(get_deleted)
-                )
+            return tuple(
+                dto.AdsModel.from_orm(ads_db)
+                for ads_db in service.get_all(get_deleted)
             )
         
     
@@ -51,7 +51,7 @@ class AdsDBController:
             return dto.AdsModel.from_orm(ads)
         
 
-    def delete_for_id_list(self, id_list: List[int]) -> dto.DeleteResult:
+    def delete_for_id_list(self, id_list: List[int]) -> Dict[int, str]:
         with self.service_type() as service:
             result_dict = dict()
 
@@ -67,4 +67,4 @@ class AdsDBController:
 
             service.commit()
 
-            return dto.DeleteResult(result = result_dict)
+            return result_dict

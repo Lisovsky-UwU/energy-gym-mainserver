@@ -1,5 +1,7 @@
 from typing import Type
 from typing import List
+from typing import Dict
+from typing import Tuple
 from typing import Optional
 from typing import Iterable
 
@@ -22,19 +24,19 @@ class EntryDBController:
         self.avtime_controller = avtime_controller
 
     
-    def get_all(self, get_deleted: Optional[bool] = False) -> dto.EntryList:
+    def get_all(self, get_deleted: Optional[bool] = False) -> Tuple[dto.EntryModel]:
         with self.entry_service_type() as entry_service:
-            return self.__to_list_model__(entry_service.get_all(get_deleted))
+            return self.__to_tuple_model__(entry_service.get_all(get_deleted))
         
     
-    def get_for_user(self, user_id: int) -> dto.EntryList:
+    def get_for_user(self, user_id: int) -> Tuple[dto.EntryModel]:
         with self.entry_service_type() as service:
-            return self.__to_list_model__(service.get_for_user(user_id))
+            return self.__to_tuple_model__(service.get_for_user(user_id))
 
 
-    def get_for_avtime(self, avtime_id: int) -> dto.EntryList:
+    def get_for_avtime(self, avtime_id: int) -> Tuple[dto.EntryModel]:
         with self.entry_service_type() as service:
-            return self.__to_list_model__(service.get_for_av_time(avtime_id))
+            return self.__to_tuple_model__(service.get_for_av_time(avtime_id))
 
 
     def create(self, payload: dto.EntryAddRequest):
@@ -47,7 +49,7 @@ class EntryDBController:
             return self.from_orm_to_model(entry)
 
 
-    def create_by_user(self, user_id: int, selected_times_id: List[int]) -> dto.EntryList:
+    def create_by_user(self, user_id: int, selected_times_id: List[int]) -> Tuple[dto.EntryModel]:
         if len(selected_times_id) > config.common.max_entry_count:
             raise LogicError(f'Максимальное число записей для одного пользователя - {config.common.max_entry_count}')
         
@@ -69,10 +71,10 @@ class EntryDBController:
             )
             entry_service.commit()
 
-            return self.__to_list_model__(entry_list)
+            return self.__to_tuple_model__(entry_list)
 
 
-    def create_for_list(self, payload: dto.EntryAddList) -> dto.EntryList:
+    def create_for_list(self, payload: dto.EntryAddList) -> Tuple[dto.EntryModel]:
         with self.entry_service_type() as service:
             entry_list = service.create_for_list(
                 [
@@ -82,10 +84,10 @@ class EntryDBController:
             )
             service.commit()
 
-            return self.__to_list_model__(entry_list)
+            return self.__to_tuple_model__(entry_list)
 
 
-    def delete_for_id_list(self, id_list: List[int], user_id: int, delete_any: bool = False) -> dto.DeleteResult:
+    def delete_for_id_list(self, id_list: List[int], user_id: int, delete_any: bool = False) -> Dict[int, str]:
         with self.entry_service_type() as service:
             result_dict = dict()
 
@@ -100,7 +102,7 @@ class EntryDBController:
                     result_dict[entry_id] = 'Успешно'
             
             service.commit()
-            return dto.DeleteResult(result = result_dict)
+            return result_dict
 
 
     def from_orm_to_model(self, _from: Entry) -> dto.EntryModel:
@@ -112,12 +114,8 @@ class EntryDBController:
         )
 
 
-    def __to_list_model__(self, data: Iterable[Entry]) -> dto.EntryList:
-        return dto.EntryList( data = self.__to_models__(data) )
-         
-    
-    def __to_models__(self, data: Iterable[Entry]) -> List[dto.EntryModel]:
-        return [
+    def __to_tuple_model__(self, data: Iterable[Entry]) -> Tuple[dto.EntryModel]:
+        return tuple(
             self.from_orm_to_model(entry)
             for entry in data
-        ]
+        )

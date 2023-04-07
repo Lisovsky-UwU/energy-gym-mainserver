@@ -2,6 +2,7 @@ from typing import Optional
 from typing import Iterable
 from typing import List
 from typing import Type
+from typing import Tuple
 
 from ..exceptions import LogicError
 from ..services import AvailableTimeDBService
@@ -15,17 +16,17 @@ class AvailableTimeDBController:
         self.av_service_type = av_service_type
 
     
-    def get_all(self, all_months: Optional[bool] = False, get_deleted: Optional[bool] = False) -> dto.AvailableTimeList:
+    def get_all(self, all_months: Optional[bool] = False, get_deleted: Optional[bool] = False) -> Tuple[dto.AvailableTimeModel]:
         with self.av_service_type() as service:
             if all_months:
                 av_times = service.get_all(get_deleted)
             else:
                 av_times = service.get_for_current_month()
             
-            return self.__to_list_model__(av_times)
+            return self.__to_tuple_model__(av_times)
 
 
-    def create(self, av_time_list: dto.AvailableTimeListAddRequest) -> dto.AvailableTimeList:
+    def create(self, av_time_list: dto.AvailableTimeListAddRequest) -> Tuple[dto.AvailableTimeModel]:
         with self.av_service_type() as service:
             av_times = service.create_for_list(
                 [
@@ -35,7 +36,7 @@ class AvailableTimeDBController:
             )
             service.commit()
 
-            return self.__to_list_model__(av_times)
+            return self.__to_tuple_model__(av_times)
 
 
     def from_orm_to_model(self, _from: AvailableTime) -> dto.AvailableTimeModel:
@@ -63,12 +64,8 @@ class AvailableTimeDBController:
                     raise LogicError('Максимальное число записей на один день - 1')
 
 
-    def __to_list_model__(self, data: Iterable[AvailableTime]) -> dto.AvailableTimeList:
-        return dto.AvailableTimeList(data = self.__to_models__(data))
-    
-
-    def __to_models__(self, data: Iterable[AvailableTime]) -> List[dto.AvailableTimeModel]:
-        return [
+    def __to_tuple_model__(self, data: Iterable[AvailableTime]) -> Tuple[dto.AvailableTimeModel]:
+        return tuple(
             self.from_orm_to_model(av_time)
             for av_time in data
-        ]
+        )
