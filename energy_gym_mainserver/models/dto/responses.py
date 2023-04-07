@@ -5,12 +5,19 @@ from pydantic import BaseModel
 from .common import AvailableTimeModel
 from .common import EntryModel
 from .common import UserModel
+from .common import AdsModel
 
 
 # ---> Common <---
 
 class DeleteResult(BaseModel):
     result : Dict[int, str]
+
+
+# ---> Ads <---
+
+class AdsList(BaseModel):
+    data : List[AdsModel]
 
 
 # ---> Available Time <---

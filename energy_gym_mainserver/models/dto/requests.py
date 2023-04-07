@@ -12,6 +12,13 @@ def get_current_month():
     return datetime.now().strftime(config.common.av_month_format)
 
 
+# ---> Ads <---
+
+class AdsUpdateRequest(BaseModel):
+    id   : int
+    body : str
+
+
 # ---> Available Time <---
 
 class AvailableTimeAddRequest(BaseModel):

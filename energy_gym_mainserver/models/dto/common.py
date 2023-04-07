@@ -3,6 +3,14 @@ from pydantic import BaseModel
 from datetime import datetime
 
 
+class AdsModel(BaseModel):
+    id          : Optional[int]
+    create_time : datetime
+    body        : str
+
+AdsModel.Config.orm_mode = True
+
+
 class UserModel(BaseModel):
     id           : Optional[int]
     name         : str
