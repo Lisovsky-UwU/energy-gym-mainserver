@@ -1,4 +1,5 @@
 from typing import Iterable
+from typing import Optional
 from typing import List
 from datetime import datetime
 from pydantic import BaseModel
@@ -43,3 +44,9 @@ class UserCreateRequest(BaseModel):
     group        : str
     password     : str
     role         : str
+
+
+class UserDataUpdateRequest(BaseModel):
+    name         : Optional[str]
+    group        : Optional[str]
+    password     : Optional[str]
