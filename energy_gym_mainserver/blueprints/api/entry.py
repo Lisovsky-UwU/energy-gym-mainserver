@@ -32,18 +32,29 @@ def create_any_entry():
     )
 
 
+@entry_bl.get('/check-open')
+@format_response
+def check_open():
+    return EntryDBController.entry_is_open
+
+
+@entry_bl.post('/change-open')
+@format_response
+def change_open():
+    data = request.get_json()
+    
+    if isinstance(data, bool):
+        EntryDBController.entry_is_open = data
+
+    return EntryDBController.entry_is_open
+
+
 @entry_bl.get('/get')
 @format_response
 def get_entries():
     return ControllerFactory.entry().get_for_user(
         int(request.headers.get('user-id'))
     )
-
-
-@entry_bl.get('/check-open')
-@format_response
-def check_open():
-    return EntryDBController.entry_is_open
 
 
 @entry_bl.post('/get-any')
