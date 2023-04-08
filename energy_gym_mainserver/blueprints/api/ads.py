@@ -12,9 +12,13 @@ ads_bl = Blueprint('asd', 'ads')
 @ads_bl.post('/create')
 @format_response
 def create_ads():
+    data = request.get_json()
+    if not isinstance(data, list):
+        data = [data]
+
     return ControllerFactory.ads().create(
         int(request.headers.get('user-id')),
-        request.get_json()
+        data
     )
 
 
@@ -27,14 +31,21 @@ def get_ads():
 @ads_bl.put('/edit')
 @format_response
 def edit_ads():
+    data = request.get_json()
+    if not isinstance(data, list):
+        data = [data]
+
     return ControllerFactory.ads().update(
-        dto.AdsUpdateRequest.parse_obj(request.get_json())
+        dto.AdsUpdateRequest.parse_obj(ads)
+        for ads in data
     )
 
 
 @ads_bl.delete('/delete')
 @format_response
 def delete_ads():
-    return ControllerFactory.ads().delete_for_id_list(
-        request.get_json()
-    )
+    data = request.get_json()
+    if not isinstance(data, list):
+        data = [data]
+
+    return ControllerFactory.ads().delete(data)

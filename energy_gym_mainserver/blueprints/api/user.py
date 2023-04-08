@@ -12,8 +12,13 @@ user_bl = Blueprint('user', 'user')
 @user_bl.post('/create')
 @format_response
 def create_user():
+    data = request.get_json()
+    if not isinstance(data, list):
+        data = [data]
+
     return ControllerFactory.user().create(
-        dto.UserCreateRequest.parse_obj(request.get_json())
+        dto.UserCreateRequest.parse_obj(user)
+        for user in data
     )
 
 
@@ -52,17 +57,21 @@ def edit_entries():
 @user_bl.put('/edit-any')
 @format_response
 def edit_any_entries():
-    return ControllerFactory.user().update_any_user_data(
-        [ 
-            dto.UserAnyDataUpdateRequest(**data)
-            for data in request.get_json()
-        ]
+    data = request.get_json()
+    if not isinstance(data, list):
+        data = [data]
+
+    return ControllerFactory.user().update(
+        dto.UserAnyDataUpdateRequest(**user)
+        for user in data
     )
 
 
 @user_bl.delete('/delete-any')
 @format_response
 def delete_any_entries():
-    return ControllerFactory.user().delete_for_id_list(
-        request.get_json()
-    )
+    data = request.get_json()
+    if not isinstance(data, list):
+        data = [data]
+
+    return ControllerFactory.user().delete(data)

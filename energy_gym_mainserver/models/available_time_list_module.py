@@ -1,7 +1,7 @@
 # Пока что будет так, после сделаю как-нибудь по умному
 # Каждое время для записи состоит из weektime, то есть время на недели для записи
 
-from .dto import AvailableTimeAddRequest, AvailableTimeListAddRequest
+from .dto import AvailableTimeAddRequest
 
 
 def default_time_list_factory():
@@ -18,4 +18,4 @@ def default_time_list_factory():
                 )
             )
 
-    return AvailableTimeListAddRequest(data=__list__)
+    return __list__

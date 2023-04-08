@@ -1,10 +1,9 @@
 from typing import Type
-from typing import List
+from typing import Iterable
 from typing import Tuple
 from typing import Dict
 from datetime import datetime
 
-from ..exceptions import LogicError
 from ..services import AdsDBService
 from ..models import dto
 from ..orm import Ads
@@ -16,42 +15,45 @@ class AdsDBController:
         self.service_type = ads_service_type
 
 
-    def create(self, user_id: int, body: str) -> dto.AdsModel:
+    def create(self, user_id: int, payload: Iterable[str]) -> Tuple[dto.AdsModel]:
         with self.service_type() as service:
-            ads = service.create(
+            result_list = service.create_for_iter(
                 Ads(
                     create_time = datetime.now(),
                     body        = body,
                     user        = user_id,
                 )
+                for body in payload
             )
             service.commit()
 
-            return dto.AdsModel.from_orm(ads)
+            return self.__to_tuple_model__(result_list)
 
 
     def get_all(self, get_deleted: bool = False) -> Tuple[dto.AdsModel]:
         with self.service_type() as service:
-            return tuple(
-                dto.AdsModel.from_orm(ads_db)
-                for ads_db in service.get_all(get_deleted)
-            )
+            return self.__to_tuple_model__(service.get_all(get_deleted))
         
     
-    def update(self, data: dto.AdsUpdateRequest) -> dto.AdsModel:
+    def update(self, payload: Iterable[dto.AdsUpdateRequest]) -> dto.AdsModel:
         with self.service_type() as service:
-            ads = service.get_by_id(data.id)
-            if ads is None:
-                raise LogicError('Запрашиваемое объявление не найдено')
+            result_list = list()
 
-            ads.body = data.body
-            service.update(ads)
+            for data in payload:
+                ads = service.get_by_id(data.id)
+                if ads is None or ads.deleted:
+                    continue
+
+                ads.body = data.body
+                service.update(ads)
+                result_list.append(ads)
+
             service.commit()
 
-            return dto.AdsModel.from_orm(ads)
+            return self.__to_tuple_model__(result_list)
         
 
-    def delete_for_id_list(self, id_list: List[int]) -> Dict[int, str]:
+    def delete(self, id_list: Iterable[int]) -> Dict[int, str]:
         with self.service_type() as service:
             result_dict = dict()
 
@@ -68,3 +70,10 @@ class AdsDBController:
             service.commit()
 
             return result_dict
+
+
+    def __to_tuple_model__(self, data: Iterable[Ads]) -> Tuple[dto.AdsModel]:
+        return tuple(
+            dto.AdsModel.from_orm(ads_db)
+            for ads_db in data
+        )

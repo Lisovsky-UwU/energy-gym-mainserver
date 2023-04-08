@@ -21,13 +21,13 @@ def create_entry():
 @entry_bl.post('/create-any')
 @format_response
 def create_any_entry():
-    return ControllerFactory.entry().create_for_list(
-        dto.EntryAddList(
-            data = list(
-                dto.EntryAddRequest.parse_obj(entry)
-                for entry in request.get_json()
-            )
-        )
+    data = request.get_json()
+    if not isinstance(data, list):
+        data = [data]
+
+    return ControllerFactory.entry().create(
+        dto.EntryAddRequest.parse_obj(entry)
+        for entry in data
     )
 
 
@@ -59,7 +59,7 @@ def get_any_entries():
 @entry_bl.delete('/delete')
 @format_response
 def delete_entries():
-    return ControllerFactory.entry().delete_for_id_list(
+    return ControllerFactory.entry().delete(
         request.get_json(),
         int(request.headers.get('user-id'))
     )
@@ -68,7 +68,7 @@ def delete_entries():
 @entry_bl.delete('/delete-any')
 @format_response
 def delete_any_entries():
-    return ControllerFactory.entry().delete_for_id_list(
+    return ControllerFactory.entry().delete(
         request.get_json(),
         int(request.headers.get('user-id')),
         True

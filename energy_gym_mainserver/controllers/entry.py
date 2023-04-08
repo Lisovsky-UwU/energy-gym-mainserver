@@ -1,5 +1,4 @@
 from typing import Type
-from typing import List
 from typing import Dict
 from typing import Tuple
 from typing import Optional
@@ -49,7 +48,7 @@ class EntryDBController:
             return self.from_orm_to_model(entry)
 
 
-    def create_by_user(self, user_id: int, selected_times_id: List[int]) -> Tuple[dto.EntryModel]:
+    def create_by_user(self, user_id: int, selected_times_id: Iterable[int]) -> Tuple[dto.EntryModel]:
         if len(selected_times_id) > config.common.max_entry_count:
             raise LogicError(f'Максимальное число записей для одного пользователя - {config.common.max_entry_count}')
         
@@ -60,23 +59,21 @@ class EntryDBController:
             if len(entry_list) > 0:
                 entry_service.delete_for_list(entry_list)
 
-            entry_list = entry_service.create_for_list(
-                [
-                    Entry(
-                        selected_time = selected_time,
-                        user          = user_id
-                    )
-                    for selected_time in selected_times_id
-                ]
+            entry_list = entry_service.create_for_iter(
+                Entry(
+                    selected_time = selected_time,
+                    user          = user_id
+                )
+                for selected_time in selected_times_id
             )
             entry_service.commit()
 
             return self.__to_tuple_model__(entry_list)
 
 
-    def create_for_list(self, payload: dto.EntryAddList) -> Tuple[dto.EntryModel]:
+    def create(self, payload: Iterable[dto.EntryAddRequest]) -> Tuple[dto.EntryModel]:
         with self.entry_service_type() as service:
-            entry_list = service.create_for_list(
+            entry_list = service.create_for_iter(
                 [
                     Entry(**entry.dict())
                     for entry in payload.data
@@ -87,7 +84,7 @@ class EntryDBController:
             return self.__to_tuple_model__(entry_list)
 
 
-    def delete_for_id_list(self, id_list: List[int], user_id: int, delete_any: bool = False) -> Dict[int, str]:
+    def delete(self, id_list: Iterable[int], user_id: int, delete_any: bool = False) -> Dict[int, str]:
         with self.entry_service_type() as service:
             result_dict = dict()
 

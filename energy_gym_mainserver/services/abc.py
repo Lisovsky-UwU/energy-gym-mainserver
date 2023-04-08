@@ -1,10 +1,9 @@
 from typing import TypeVar
 from typing import Generic
 from typing import Optional
+from typing import List
 from typing import Iterable
-from typing import Union
 from typing import Type
-from typing import Any
 from functools import lru_cache
 from sqlalchemy import Column
 from sqlalchemy.orm import Session
@@ -54,7 +53,7 @@ class BaseService(Generic[T]):
         self.session.close()
 
 
-    def get_all(self, get_deleted: bool = False, order_by: Optional[Column] = None) -> Iterable[T]:
+    def get_all(self, get_deleted: bool = False, order_by: Optional[Column] = None) -> List[T]:
         query = self.query
         if order_by is not None:
             query = query.order_by(order_by)
@@ -74,7 +73,7 @@ class BaseService(Generic[T]):
         expression, 
         get_deleted: Optional[bool] = False, 
         order_by: Optional[Column] = None
-    ) -> Iterable[T]:
+    ) -> List[T]:
         query = self.query.filter(expression)
 
         if not get_deleted and hasattr(self.model, 'deleted'):
@@ -107,7 +106,8 @@ class BaseService(Generic[T]):
         return item
 
 
-    def create_for_list(self, items: Iterable[T], flush: bool = True) -> Iterable[T]:
+    def create_for_iter(self, items: Iterable[T], flush: bool = True) -> List[T]:
+        items = list(items)
         self.session.add_all(items)
         if flush:
             self.session.flush()
@@ -123,13 +123,13 @@ class BaseService(Generic[T]):
         return item
     
 
-    def update_for_list(self, items: Iterable[T], flush: bool = True) -> Iterable[T]:
+    def update_for_iter(self, items: Iterable[T], flush: bool = True) -> List[T]:
         for item in items:
             self.update(item, flush=False)
         if flush:
             self.session.flush()
 
-        return items
+        return list(items)
 
 
     def delete(self, item: T, flush: bool = False) -> None:
@@ -143,7 +143,7 @@ class BaseService(Generic[T]):
             self.session.flush((item,))
 
 
-    def delete_for_id_list(self, id_list: Iterable[Any], flush: bool = True) -> None:
+    def delete_for_id_list(self, id_list: Iterable[int], flush: bool = True) -> None:
         delete_list = [ self.query.get(id) for id in id_list ]
         self.delete_for_list(delete_list, flush)
 

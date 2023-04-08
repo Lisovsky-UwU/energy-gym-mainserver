@@ -1,6 +1,5 @@
 from typing import Optional
 from typing import Iterable
-from typing import List
 from typing import Type
 from typing import Tuple
 
@@ -15,7 +14,18 @@ class AvailableTimeDBController:
     def __init__(self, av_service_type: Type[AvailableTimeDBService]):
         self.av_service_type = av_service_type
 
-    
+
+    def create(self, av_time_list: Iterable[dto.AvailableTimeAddRequest]) -> Tuple[dto.AvailableTimeModel]:
+        with self.av_service_type() as service:
+            av_times = service.create_for_iter(
+                AvailableTime(**av_time.dict())
+                for av_time in av_time_list
+            )
+            service.commit()
+
+            return self.__to_tuple_model__(av_times)
+
+
     def get_all(self, all_months: Optional[bool] = False, get_deleted: Optional[bool] = False) -> Tuple[dto.AvailableTimeModel]:
         with self.av_service_type() as service:
             if all_months:
@@ -26,34 +36,21 @@ class AvailableTimeDBController:
             return self.__to_tuple_model__(av_times)
 
 
-    def create(self, av_time_list: dto.AvailableTimeListAddRequest) -> Tuple[dto.AvailableTimeModel]:
-        with self.av_service_type() as service:
-            av_times = service.create_for_list(
-                [
-                    AvailableTime(**av_time.dict())
-                    for av_time in av_time_list.data
-                ]
-            )
-            service.commit()
-
-            return self.__to_tuple_model__(av_times)
-
-
     def from_orm_to_model(self, _from: AvailableTime) -> dto.AvailableTimeModel:
         result = dto.AvailableTimeModel.from_orm(_from)
         result.free_seats = _from.number_of_persons - len(_from.not_deleted_entries)
         return result
 
 
-    def all_id_list_in_db(self, id_list: List[int]) -> bool:
+    def all_id_list_in_db(self, id_list: Iterable[int]) -> bool:
         with self.av_service_type() as service:
             return all( service.get_by_id(avtime_id) is not None for avtime_id in id_list )
 
 
-    def check_create_for_id_list(self, id_list: List[int]):
+    def check_create_for_id_list(self, id_list: Iterable[int]):
         '''Поднимет ошибку LogicError в случае несоответствия'''
         with self.av_service_type() as service:
-            avtimes = list( service.get_by_id(avtime_id) for avtime_id in id_list )
+            avtimes = tuple( service.get_by_id(avtime_id) for avtime_id in id_list )
 
             for avtime in avtimes:
                 if avtime is None:

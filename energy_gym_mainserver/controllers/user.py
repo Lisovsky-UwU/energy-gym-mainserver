@@ -2,6 +2,7 @@ from typing import Type
 from typing import List
 from typing import Dict
 from typing import Tuple
+from typing import Iterable
 from typing import Optional
 
 from ..exceptions import LogicError
@@ -18,11 +19,8 @@ class UserDBController:
     
     def get_all(self, get_deleted: Optional[bool] = False) -> Tuple[dto.UserModel]:
         with self.service_type() as service:
-            return tuple(
-                dto.UserModel.from_orm(user)
-                for user in service.get_all(get_deleted)
-            )
-         
+            return self.__to_tuple_model__(service.get_all(get_deleted))
+
 
     def get(self, user_id: int) -> dto.UserModel:
         with self.service_type() as service:
@@ -34,14 +32,15 @@ class UserDBController:
             return dto.UserModel.from_orm(user)
 
 
-    def create(self, payload: dto.UserCreateRequest) -> dto.UserModel:
+    def create(self, payload: Iterable[dto.UserCreateRequest]) -> Tuple[dto.UserModel]:
         with self.service_type() as service:
-            user = service.create(
-                User(**payload.dict())
+            result_list = service.create_for_iter(
+                User(**user.dict())
+                for user in payload
             )
             service.commit()
 
-            return dto.UserModel.from_orm(user)
+            return self.__to_tuple_model__(result_list)
 
 
     def user_data_update(self, user_id: int, data: dto.UserDataUpdateRequest) -> dto.UserModel:
@@ -54,7 +53,7 @@ class UserDBController:
             return dto.UserModel.from_orm(user)
 
 
-    def update_any_user_data(self, data: List[dto.UserAnyDataUpdateRequest]) -> Tuple[dto.UserModel]:
+    def update(self, data: List[dto.UserAnyDataUpdateRequest]) -> Tuple[dto.UserModel]:
         with self.service_type() as service:
             result_list = list()
 
@@ -70,13 +69,10 @@ class UserDBController:
             
             service.commit()
 
-            return tuple(
-                dto.UserModel.from_orm(user)
-                for user in result_list
-            )
+            return self.__to_tuple_model__(result_list)
         
     
-    def delete_for_id_list(self, id_list: List[int]) -> Dict[int, str]:
+    def delete(self, id_list: List[int]) -> Dict[int, str]:
         with self.service_type() as service:
             result_dict = dict()
 
@@ -104,3 +100,10 @@ class UserDBController:
             user.password = data.password
         
         return user
+
+
+    def __to_tuple_model__(self, data: Iterable[User]) -> Tuple[dto.UserModel]:
+        return tuple(
+            dto.UserModel.from_orm(user)
+            for user in data
+        )

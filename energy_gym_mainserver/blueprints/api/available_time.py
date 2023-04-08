@@ -12,13 +12,13 @@ avtime_bl = Blueprint('avtime', 'avtime')
 @avtime_bl.post('/create')
 @format_response
 def create_avtime():
+    data = request.get_json()
+    if not isinstance(data, list):
+        data = [data]
+
     return ControllerFactory.avtime().create(
-        dto.AvailableTimeListAddRequest(
-            data = list(
-                dto.AvailableTimeAddRequest.parse_obj(avtime)
-                for avtime in request.json
-            )
-        )
+        dto.AvailableTimeAddRequest.parse_obj(avtime)
+        for avtime in data
     )
 
 
