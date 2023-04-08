@@ -2,6 +2,10 @@ from .common import AvailableTimeModel
 from .common import EntryModel
 from .common import UserModel
 from .common import AdsModel
+from .common import AvailableTimeModelExtended
+from .common import EntryModelExtended
+from .common import UserModelExtended
+from .common import AdsModelExtended
 from .requests import AvailableTimeAddRequest
 from .requests import EntryAddRequest
 from .requests import UserCreateRequest
