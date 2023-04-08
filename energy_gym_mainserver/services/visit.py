@@ -9,11 +9,6 @@ from ..orm import Entry
 
 
 class VisitDBService(BaseService[Visit]):
-    
-    @property
-    def query(self) -> Query:
-        return self.session.query(self.model).join(Entry)
-
 
     def get_for_filter(
         self,
@@ -33,4 +28,8 @@ class VisitDBService(BaseService[Visit]):
         if len(users) > 0:
             _filter = and_(_filter, Entry.user.in_(users))
 
-        return self.get_filtered(_filter, deleted)
+        query = self.session.query(self.model).join(Entry).filter(_filter)
+        if not deleted:
+            query = query.filter(self.model.deleted == False)
+
+        return query.all()

@@ -58,7 +58,7 @@ class UserAnyDataUpdateRequest(UserDataUpdateRequest):
 class VisitCreateRequest(BaseModel):
     date  : date
     entry : int
-    mark  : int = VisitMark.PASS.value
+    mark  : int = VisitMark.PASS
 
 
     @validator('date', pre=True)
