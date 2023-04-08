@@ -28,6 +28,18 @@ def get_avtimes():
     return ControllerFactory.avtime().get_all()
 
 
+@avtime_bl.post('/get-any')
+@format_response
+def get_any_avtimes():
+    controller = ControllerFactory.avtime()
+    try:
+        data = request.get_json()
+    except:
+        return controller.get_any()
+
+    return controller.get_any(**data)
+
+
 @avtime_bl.put('/edit')
 @format_response
 def edit_avtime():

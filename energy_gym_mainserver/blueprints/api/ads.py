@@ -28,6 +28,18 @@ def get_ads():
     return ControllerFactory.ads().get_all()
 
 
+@ads_bl.post('/get-any')
+@format_response
+def get_any_ads():
+    controller = ControllerFactory.ads()
+    try:
+        data = request.get_json()
+    except:
+        return controller.get_any()
+
+    return controller.get_any(**data)
+
+
 @ads_bl.put('/edit')
 @format_response
 def edit_ads():

@@ -30,19 +30,16 @@ def get_user():
     )
 
 
-@user_bl.get('/get-any')
+@user_bl.post('/get-any')
 @format_response
 def get_any_users():
     controller = ControllerFactory.user()
     try:
         data = request.get_json()
     except:
-        return controller.get_all()
+        return controller.get_any()
 
-    if 'user' in data:
-        return controller.get(data['user'])
-    else:
-        return controller.get_all()
+    return controller.get_any(**data)
 
 
 @user_bl.put('/edit')

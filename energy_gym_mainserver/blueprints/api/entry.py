@@ -39,21 +39,16 @@ def get_entries():
     )
 
 
-@entry_bl.get('/get-any')
+@entry_bl.post('/get-any')
 @format_response
 def get_any_entries():
     controller = ControllerFactory.entry()
     try:
         data = request.get_json()
     except:
-        return controller.get_all()
+        return controller.get_any()
 
-    if 'user' in data:
-        return controller.get_for_user(data['user'])
-    elif 'avtime' in data:
-        return controller.get_for_avtime(data['avtime'])
-    else:
-        return controller.get_all()
+    return controller.get_any(**data)
 
 
 @entry_bl.delete('/delete')
