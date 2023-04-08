@@ -20,4 +20,5 @@ class Entry(Base):
     deleted         = Column(Boolean, default=False)
 
     available_time  = relationship('AvailableTime', back_populates='entries', uselist=False)
+    visits          = relationship('Visit', back_populates='entries', uselist=True)
     users           = relationship('User', back_populates='entries', uselist=False)
