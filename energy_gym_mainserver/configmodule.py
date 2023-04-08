@@ -8,10 +8,11 @@ from .ext.parametrica.io import YAMLFileConfigIO
 
 class CommonSettings(Fieldset):
 
-    use_dev         = Field[bool](True).label('Использовать ли окружение разработки')
-    token           = Field[str](str(uuid4())).label('Токен для доступа к серверу')
-    max_entry_count = Field[int](3).label('Максимальное количество записей для одного пользователя')
-    date_format     = Field[str]('%d-%m-%Y').label('Формат для даты')
+    use_dev               = Field[bool](True).label('Использовать ли окружение разработки')
+    token                 = Field[str](str(uuid4())).label('Токен для доступа к серверу')
+    max_entry_count       = Field[int](3).label('Максимальное количество записей для одного пользователя')
+    date_format           = Field[str]('%d-%m-%Y').label('Формат для даты')
+    visit_manager_timeout = Field[int](60).label('Время сна для менеджера создания отметок')
 
 
 class AvailableTimeSettings(Fieldset):
