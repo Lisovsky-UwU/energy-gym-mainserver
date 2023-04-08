@@ -19,27 +19,27 @@ class EntryDBController:
         entry_service_type: Type[EntryDBService],
         avtime_controller: AvailableTimeDBController
     ):
-        self.entry_service_type = entry_service_type
+        self.service_type = entry_service_type
         self.avtime_controller = avtime_controller
 
     
     def get_all(self, get_deleted: Optional[bool] = False) -> Tuple[dto.EntryModel]:
-        with self.entry_service_type() as entry_service:
-            return self.__to_tuple_model__(entry_service.get_all(get_deleted))
+        with self.service_type() as service:
+            return self.__to_tuple_model__(service.get_all(get_deleted))
         
     
     def get_for_user(self, user_id: int) -> Tuple[dto.EntryModel]:
-        with self.entry_service_type() as service:
+        with self.service_type() as service:
             return self.__to_tuple_model__(service.get_for_user(user_id))
 
 
     def get_for_avtime(self, avtime_id: int) -> Tuple[dto.EntryModel]:
-        with self.entry_service_type() as service:
+        with self.service_type() as service:
             return self.__to_tuple_model__(service.get_for_av_time(avtime_id))
 
 
     def create(self, payload: dto.EntryAddRequest):
-        with self.entry_service_type() as service:
+        with self.service_type() as service:
             entry = service.create(
                 Entry(**payload.dict())
             )
@@ -52,7 +52,7 @@ class EntryDBController:
         if len(selected_times_id) > config.common.max_entry_count:
             raise LogicError(f'Максимальное число записей для одного пользователя - {config.common.max_entry_count}')
         
-        with self.entry_service_type() as entry_service:
+        with self.service_type() as entry_service:
             self.avtime_controller.check_create_for_id_list(selected_times_id)
 
             entry_list = entry_service.get_for_user(user_id)
@@ -72,7 +72,7 @@ class EntryDBController:
 
 
     def create(self, payload: Iterable[dto.EntryAddRequest]) -> Tuple[dto.EntryModel]:
-        with self.entry_service_type() as service:
+        with self.service_type() as service:
             entry_list = service.create_for_iter(
                 [
                     Entry(**entry.dict())
@@ -85,7 +85,7 @@ class EntryDBController:
 
 
     def delete(self, id_list: Iterable[int], user_id: int, delete_any: bool = False) -> Dict[int, str]:
-        with self.entry_service_type() as service:
+        with self.service_type() as service:
             result_dict = dict()
 
             for entry_id in id_list:
