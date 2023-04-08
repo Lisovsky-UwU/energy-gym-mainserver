@@ -12,6 +12,7 @@ from .requests import AvailableTimeAddRequest
 from .requests import EntryAddRequest
 from .requests import UserCreateRequest
 from .requests import VisitCreateRequest
+from .requests import VisitUpdateRequest
 from .requests import UserDataUpdateRequest
 from .requests import UserAnyDataUpdateRequest
 from .requests import AdsUpdateRequest

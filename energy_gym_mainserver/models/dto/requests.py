@@ -67,3 +67,8 @@ class VisitCreateRequest(BaseModel):
             return datetime.strptime(value, config.common.date_format).date()
 
         return value
+
+
+class VisitUpdateRequest(BaseModel):
+    id   : int
+    mark : int

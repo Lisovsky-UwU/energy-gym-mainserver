@@ -55,6 +55,22 @@ class VisitDBController:
             )
 
 
+    def update(self, data: Iterable[dto.VisitUpdateRequest]) -> Tuple[dto.VisitModel]:
+        with self.service_type() as service:
+            result_list = list()
+
+            for new_data in data:
+                visit = service.get_by_id(new_data.id)
+
+                if visit is not None:
+                    visit.mark = new_data.mark
+                    result_list.append(service.update(visit))
+            
+            service.commit()
+
+            return self.__to_tuple_model__(result_list)
+
+
     def __to_tuple_model__(self, data: Iterable[Visit]) -> Tuple[dto.VisitModel]:
         return tuple(
             dto.VisitModel(

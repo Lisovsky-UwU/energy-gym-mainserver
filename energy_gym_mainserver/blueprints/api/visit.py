@@ -25,7 +25,9 @@ def create_visit():
 @visit_bl.get('/get')
 @format_response
 def get_visit():
-    return { 'result': 'in develop...' }
+    return ControllerFactory.visit().get_any(
+        users = int(request.headers.get('user-id'))
+    )
 
 
 @visit_bl.post('/get-any')
@@ -43,4 +45,11 @@ def get_any_visits():
 @visit_bl.put('/edit')
 @format_response
 def edit_visits():
-    return { 'result': 'in develop...' }
+    data = request.get_json()
+    if not isinstance(data, list):
+        data = [data]
+
+    return ControllerFactory.visit().update(
+        dto.VisitUpdateRequest(**user)
+        for user in data
+    )
