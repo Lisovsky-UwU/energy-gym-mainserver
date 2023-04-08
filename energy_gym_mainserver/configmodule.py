@@ -18,6 +18,7 @@ class AvailableTimeSettings(Fieldset):
     month_format   = Field[str]('%m-%Y').label('Формат месяца для доступного времени записи в БД')
     day_create     = Field[int](20).label('В какой день будут создаваться доступное время на следующий месяц')
     persons_numb   = Field[int](12).label('Количество свободных мест в создаваемых временах')
+    opening_time   = Field[str]('12:00:00 25').label('Время открытия записи в формате ЧЧ:ММ:СС ДД')
 
 
 class LocalServerSettings(Fieldset):

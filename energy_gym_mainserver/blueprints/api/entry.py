@@ -3,6 +3,7 @@ from flask import request
 
 from .handlers import format_response
 from ...controllers import ControllerFactory
+from ...controllers import EntryDBController
 from ...models import dto
 
 
@@ -37,6 +38,12 @@ def get_entries():
     return ControllerFactory.entry().get_for_user(
         int(request.headers.get('user-id'))
     )
+
+
+@entry_bl.get('/check-open')
+@format_response
+def check_open():
+    return EntryDBController.entry_is_open
 
 
 @entry_bl.post('/get-any')

@@ -15,6 +15,8 @@ from ..orm import Entry
 
 class EntryDBController:
 
+    entry_is_open = False
+
     def __init__(
         self, 
         entry_service_type: Type[EntryDBService],
@@ -68,6 +70,9 @@ class EntryDBController:
 
 
     def create_by_user(self, user_id: int, selected_times_id: Iterable[int]) -> Tuple[dto.EntryModel]:
+        if not self.entry_is_open:
+            raise LogicError('Запись закрыта')
+
         if len(selected_times_id) > config.common.max_entry_count:
             raise LogicError(f'Максимальное число записей для одного пользователя - {config.common.max_entry_count}')
         

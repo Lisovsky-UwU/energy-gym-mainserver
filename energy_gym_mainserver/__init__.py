@@ -3,7 +3,9 @@ from loguru import logger
 from .log import init_logger
 from .app import build_app
 from .managers import AvailableTimeCreatorManager
+from .managers import EntryCreateOpeningManager
 from .controllers import ControllerFactory
+from .controllers import EntryDBController
 from .configmodule import config
 
 
@@ -16,6 +18,13 @@ def start():
         )
         av_time_creator_manager.start()
         logger.success('AvailableTimeCreatorManager запущен')
+
+        logger.info('Запуск EntryCreateOpeningManager')
+        av_time_creator_manager = EntryCreateOpeningManager(
+            EntryDBController
+        )
+        av_time_creator_manager.start()
+        logger.success('EntryCreateOpeningManager запущен')
 
         logger.info('Сборка сервера')
         app = build_app()
