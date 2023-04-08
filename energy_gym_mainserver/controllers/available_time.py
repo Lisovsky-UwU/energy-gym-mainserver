@@ -12,11 +12,11 @@ from ..orm import AvailableTime
 class AvailableTimeDBController:
     
     def __init__(self, av_service_type: Type[AvailableTimeDBService]):
-        self.av_service_type = av_service_type
+        self.service_type = av_service_type
 
 
     def create(self, av_time_list: Iterable[dto.AvailableTimeAddRequest]) -> Tuple[dto.AvailableTimeModel]:
-        with self.av_service_type() as service:
+        with self.service_type() as service:
             av_times = service.create_for_iter(
                 AvailableTime(**av_time.dict())
                 for av_time in av_time_list
@@ -27,7 +27,7 @@ class AvailableTimeDBController:
 
 
     def get_all(self, all_months: Optional[bool] = False, get_deleted: Optional[bool] = False) -> Tuple[dto.AvailableTimeModel]:
-        with self.av_service_type() as service:
+        with self.service_type() as service:
             if all_months:
                 av_times = service.get_all(get_deleted)
             else:
@@ -43,13 +43,13 @@ class AvailableTimeDBController:
 
 
     def all_id_list_in_db(self, id_list: Iterable[int]) -> bool:
-        with self.av_service_type() as service:
+        with self.service_type() as service:
             return all( service.get_by_id(avtime_id) is not None for avtime_id in id_list )
 
 
     def check_create_for_id_list(self, id_list: Iterable[int]):
         '''Поднимет ошибку LogicError в случае несоответствия'''
-        with self.av_service_type() as service:
+        with self.service_type() as service:
             avtimes = tuple( service.get_by_id(avtime_id) for avtime_id in id_list )
 
             for avtime in avtimes:
