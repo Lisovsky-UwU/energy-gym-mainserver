@@ -12,7 +12,8 @@ def start_base():
             service.create(
                 User(
                     student_card = -1,
-                    name         = 'ADMIN',
+                    firstname    = 'SUPER',
+                    secondname   = 'ADMIN',
                     group        = '-',
                     password     = 'hexReGON14',
                     role         = 'ADMIN',

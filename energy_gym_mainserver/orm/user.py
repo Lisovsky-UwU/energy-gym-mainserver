@@ -13,7 +13,9 @@ class User(Base):
 
     id            = Column(Integer, primary_key=True, autoincrement=True)
     student_card  = Column(Integer, nullable=False, unique=True, index=True)
-    name          = Column(String(70), nullable=False)
+    firstname     = Column(String(30), nullable=False)
+    secondname    = Column(String(30), nullable=False)
+    surname       = Column(String(30), nullable=False, default='')
     group         = Column(String(20), nullable=False)
     password      = Column(String(60), nullable=False)
     role          = Column(String(15), nullable=False, index=True)

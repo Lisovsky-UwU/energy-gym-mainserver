@@ -111,8 +111,12 @@ class UserDBController:
 
 
     def __correlate_orm__(self, user: User, data: dto.UserDataUpdateRequest) -> User:
-        if data.name is not None:
-            user.name = data.name
+        if data.firstname is not None:
+            user.firstname = data.firstname
+        if data.secondname is not None:
+            user.secondname = data.secondname
+        if data.surname is not None:
+            user.surname = data.surname
         if data.group is not None:
             user.group = data.group
         if data.password is not None:

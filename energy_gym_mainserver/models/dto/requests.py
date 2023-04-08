@@ -37,14 +37,18 @@ class EntryAddRequest(BaseModel):
 
 class UserCreateRequest(BaseModel):
     student_card : int
-    name         : str
+    firstname    : str
+    secondname   : str
+    surname      : str = ''
     group        : str
     password     : str
     role         : str
 
 
 class UserDataUpdateRequest(BaseModel):
-    name         : Optional[str]
+    firstname    : Optional[str]
+    secondname   : Optional[str]
+    surname      : Optional[str]
     group        : Optional[str]
     password     : Optional[str]
 

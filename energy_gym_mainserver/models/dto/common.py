@@ -8,7 +8,9 @@ from datetime import date
 
 class UserModel(BaseModel):
     id           : Optional[int]
-    name         : str
+    firstname    : str
+    secondname   : str
+    surname      : str
     group        : str
     student_card : int
 
