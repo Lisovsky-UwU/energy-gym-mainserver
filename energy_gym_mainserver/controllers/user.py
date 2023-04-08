@@ -2,6 +2,7 @@ from typing import Type
 from typing import List
 from typing import Dict
 from typing import Tuple
+from typing import Union
 from typing import Iterable
 from typing import Optional
 
@@ -20,6 +21,29 @@ class UserDBController:
     def get_all(self, get_deleted: Optional[bool] = False) -> Tuple[dto.UserModel]:
         with self.service_type() as service:
             return self.__to_tuple_model__(service.get_all(get_deleted))
+
+
+    def get_any(
+        self,
+        groups: Union[Iterable[str], str] = (),
+        roles: Union[Iterable[str], str] = (),
+        deleted: bool = False,
+        **kwargs
+    ) -> Tuple[dto.UserModelExtended]:
+        if isinstance(groups, str):
+            groups = [groups]
+        
+        if isinstance(roles, str):
+            roles = [roles]
+
+        with self.service_type() as service:
+            return self.__to_tuple_extended_model__(
+                service.get_for_filter(
+                    groups  = groups,
+                    roles   = roles,
+                    deleted = deleted
+                )
+            )
 
 
     def get(self, user_id: int) -> dto.UserModel:
@@ -105,5 +129,11 @@ class UserDBController:
     def __to_tuple_model__(self, data: Iterable[User]) -> Tuple[dto.UserModel]:
         return tuple(
             dto.UserModel.from_orm(user)
+            for user in data
+        )
+
+    def __to_tuple_extended_model__(self, data: Iterable[User]) -> Tuple[dto.UserModelExtended]:
+        return tuple(
+            dto.UserModelExtended.from_orm(user)
             for user in data
         )

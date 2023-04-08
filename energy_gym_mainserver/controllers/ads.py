@@ -1,6 +1,7 @@
 from typing import Type
 from typing import Iterable
 from typing import Tuple
+from typing import Union
 from typing import Dict
 from datetime import datetime
 
@@ -33,8 +34,26 @@ class AdsDBController:
     def get_all(self, get_deleted: bool = False) -> Tuple[dto.AdsModel]:
         with self.service_type() as service:
             return self.__to_tuple_model__(service.get_all(get_deleted))
-        
-    
+
+
+    def get_any(
+        self,
+        users: Union[Iterable[int], int] = (),
+        deleted: bool = False,
+        **kwargs
+    ) -> Tuple[dto.AdsModelExtended]:
+        if isinstance(users, int):
+            users = [users]
+
+        with self.service_type() as service:
+            return self.__to_tuple_extended_model__(
+                service.get_for_filter(
+                    users   = users, 
+                    deleted = deleted
+                )
+            )
+
+
     def update(self, payload: Iterable[dto.AdsUpdateRequest]) -> dto.AdsModel:
         with self.service_type() as service:
             result_list = list()
@@ -75,5 +94,18 @@ class AdsDBController:
     def __to_tuple_model__(self, data: Iterable[Ads]) -> Tuple[dto.AdsModel]:
         return tuple(
             dto.AdsModel.from_orm(ads_db)
+            for ads_db in data
+        )
+
+    
+    def __to_tuple_extended_model__(self, data: Iterable[Ads]) -> Tuple[dto.AdsModelExtended]:
+        return tuple(
+            dto.AdsModelExtended(
+                id          = ads_db.id,
+                create_time = ads_db.create_time,
+                body        = ads_db.body,
+                user        = ads_db.users,
+                deleted     = ads_db.deleted
+            )
             for ads_db in data
         )

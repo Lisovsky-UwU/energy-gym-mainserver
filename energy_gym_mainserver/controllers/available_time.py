@@ -2,6 +2,7 @@ from typing import Optional
 from typing import Iterable
 from typing import Type
 from typing import Tuple
+from typing import Union
 
 from ..exceptions import LogicError
 from ..services import AvailableTimeDBService
@@ -36,8 +37,32 @@ class AvailableTimeDBController:
             return self.__to_tuple_model__(av_times)
 
 
+    def get_any(
+        self,
+        months: Union[Iterable[str], str] = (),
+        deleted: bool = False,
+        **kwargs
+    ) -> Tuple[dto.AvailableTimeModelExtended]:
+        if isinstance(months, str):
+            months = [months]
+
+        with self.service_type() as service:
+            return self.__to_tuple_extended_model__(
+                service.get_for_filter(
+                    months  = months,
+                    deleted = deleted
+                )
+            )
+
+
     def from_orm_to_model(self, _from: AvailableTime) -> dto.AvailableTimeModel:
         result = dto.AvailableTimeModel.from_orm(_from)
+        result.free_seats = _from.number_of_persons - len(_from.not_deleted_entries)
+        return result
+    
+
+    def from_orm_to_extended_model(self, _from: AvailableTime) -> dto.AvailableTimeModelExtended:
+        result = dto.AvailableTimeModelExtended.from_orm(_from)
         result.free_seats = _from.number_of_persons - len(_from.not_deleted_entries)
         return result
 
@@ -64,5 +89,12 @@ class AvailableTimeDBController:
     def __to_tuple_model__(self, data: Iterable[AvailableTime]) -> Tuple[dto.AvailableTimeModel]:
         return tuple(
             self.from_orm_to_model(av_time)
+            for av_time in data
+        )
+
+
+    def __to_tuple_extended_model__(self, data: Iterable[AvailableTime]) -> Tuple[dto.AvailableTimeModelExtended]:
+        return tuple(
+            self.from_orm_to_extended_model(av_time)
             for av_time in data
         )
