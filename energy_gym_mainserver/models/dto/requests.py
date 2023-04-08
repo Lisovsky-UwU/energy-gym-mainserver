@@ -1,13 +1,8 @@
 from typing import Optional
-from datetime import datetime
 from pydantic import BaseModel
 from pydantic import Field
 
-from ...configmodule import config
-
-
-def get_current_month():
-    return datetime.now().strftime(config.available_time.month_format)
+from ...utils import get_next_month
 
 
 # ---> Ads <---
@@ -23,7 +18,7 @@ class AvailableTimeAddRequest(BaseModel):
     weekday             : int
     time                : str
     number_of_persons   : int
-    month               : str = Field(default_factory=get_current_month)
+    month               : str = Field(default_factory=get_next_month)
 
 
 # ---> Entries <---
