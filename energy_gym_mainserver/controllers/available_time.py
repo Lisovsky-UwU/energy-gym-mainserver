@@ -28,16 +28,6 @@ class AvailableTimeDBController:
             return self.__to_tuple_model__(av_times)
 
 
-    def get_all(self, all_months: Optional[bool] = False, get_deleted: Optional[bool] = False) -> Tuple[dto.AvailableTimeModel]:
-        with self.service_type() as service:
-            if all_months:
-                av_times = service.get_all(get_deleted)
-            else:
-                av_times = service.get_for_current_month()
-            
-            return self.__to_tuple_model__(av_times)
-
-
     def get_any(
         self,
         months: Union[Iterable[str], str] = (),

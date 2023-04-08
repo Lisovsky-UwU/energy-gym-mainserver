@@ -17,11 +17,6 @@ class UserDBController:
     def __init__(self, service_type: Type[UserDBService]):
         self.service_type = service_type
 
-    
-    def get_all(self, get_deleted: Optional[bool] = False) -> Tuple[dto.UserModel]:
-        with self.service_type() as service:
-            return self.__to_tuple_model__(service.get_all(get_deleted))
-
 
     def get_any(
         self,

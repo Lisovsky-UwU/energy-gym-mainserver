@@ -25,11 +25,6 @@ class EntryDBController:
         self.service_type = entry_service_type
         self.avtime_controller = avtime_controller
 
-    
-    def get_all(self, get_deleted: Optional[bool] = False) -> Tuple[dto.EntryModel]:
-        with self.service_type() as service:
-            return self.__to_tuple_model__(service.get_all(get_deleted))
-
 
     def get_any(
         self,
