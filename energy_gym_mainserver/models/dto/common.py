@@ -1,6 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel
 from datetime import datetime
+from datetime import date
 
 
 # ---> User <---
@@ -78,3 +79,21 @@ class EntryModelExtended(EntryModel):
     deleted       : bool
 
 EntryModelExtended.Config.orm_mode = True
+
+
+
+# ---> Visit <---
+
+class VisitModel(BaseModel):
+    id    : Optional[int]
+    date  : date
+    entry : EntryModel
+    mark  : int
+
+VisitModel.Config.orm_mode = True
+
+
+class VisitModelExtended(VisitModel):
+    deleted: bool
+
+VisitModelExtended.Config.orm_mode = True

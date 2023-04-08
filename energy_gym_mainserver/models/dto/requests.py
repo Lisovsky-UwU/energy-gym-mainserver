@@ -1,8 +1,13 @@
 from typing import Optional
 from pydantic import BaseModel
+from pydantic import validator
 from pydantic import Field
+from datetime import datetime
+from datetime import date
 
+from .. import VisitMark
 from ...utils import get_next_month
+from ...configmodule import config
 
 
 # ---> Ads <---
@@ -46,3 +51,19 @@ class UserDataUpdateRequest(BaseModel):
 
 class UserAnyDataUpdateRequest(UserDataUpdateRequest):
     id : int
+
+
+# ---> Visit <---
+
+class VisitCreateRequest(BaseModel):
+    date  : date
+    entry : int
+    mark  : int = VisitMark.PASS.value
+
+
+    @validator('date', pre=True)
+    def date_validate(cls, value):
+        if isinstance(value, str):
+            return datetime.strptime(value, config.common.date_format).date()
+
+        return value
