@@ -10,7 +10,7 @@ from ..configmodule import config
 
 
 def cur_month_fabric() -> str:
-    return datetime.now().strftime(config.common.av_month_format)
+    return datetime.now().strftime(config.available_time.month_format)
 
 
 class AvailableTime(Base):

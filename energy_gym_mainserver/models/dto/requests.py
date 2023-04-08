@@ -7,7 +7,7 @@ from ...configmodule import config
 
 
 def get_current_month():
-    return datetime.now().strftime(config.common.av_month_format)
+    return datetime.now().strftime(config.available_time.month_format)
 
 
 # ---> Ads <---
