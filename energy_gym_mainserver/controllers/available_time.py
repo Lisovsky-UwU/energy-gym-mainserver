@@ -7,6 +7,7 @@ from typing import Union
 from ..exceptions import LogicError
 from ..services import AvailableTimeDBService
 from ..models import dto
+from ..utils import get_next_month
 from ..orm import AvailableTime
 
 
@@ -80,6 +81,8 @@ class AvailableTimeDBController:
             for avtime in avtimes:
                 if avtime is None:
                     raise LogicError('Не найдено одно из доступных времен для записи')
+                if avtime.month != get_next_month():
+                    raise LogicError('Вы можете записываться только на следующий месяц')
                 if avtime.number_of_persons - len(avtime.not_deleted_entries) <= 0:
                     raise LogicError('Отсутствуют места для записи на одно из времен')
                 if len([ _avt for _avt in avtimes if _avt.weekday == avtime.weekday ]) > 1:

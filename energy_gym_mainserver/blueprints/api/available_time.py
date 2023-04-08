@@ -2,6 +2,7 @@ from flask import Blueprint
 from flask import request
 
 from .handlers import format_response
+from ...utils import get_next_month
 from ...models import dto
 from ...controllers import ControllerFactory
 
@@ -25,7 +26,7 @@ def create_avtime():
 @avtime_bl.get('/get')
 @format_response
 def get_avtimes():
-    return ControllerFactory.avtime().get_all()
+    return ControllerFactory.avtime().get_any(months = get_next_month())
 
 
 @avtime_bl.post('/get-any')
