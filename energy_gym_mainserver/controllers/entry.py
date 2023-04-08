@@ -54,16 +54,6 @@ class EntryDBController:
             return self.__to_tuple_model__(service.get_for_user(user_id))
 
 
-    def create(self, payload: dto.EntryAddRequest):
-        with self.service_type() as service:
-            entry = service.create(
-                Entry(**payload.dict())
-            )
-            service.commit()
-
-            return self.from_orm_to_model(entry)
-
-
     def create_by_user(self, user_id: int, selected_times_id: Iterable[int]) -> Tuple[dto.EntryModel]:
         if not self.entry_is_open:
             raise LogicError('Запись закрыта')
@@ -95,7 +85,7 @@ class EntryDBController:
             entry_list = service.create_for_iter(
                 [
                     Entry(**entry.dict())
-                    for entry in payload.data
+                    for entry in payload
                 ]
             )
             service.commit()

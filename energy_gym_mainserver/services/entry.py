@@ -18,7 +18,7 @@ class EntryDBService(BaseService[Entry]):
         _filter = True
 
         if len(av_times) > 0:
-            _filter = and_(_filter, Entry.available_time.in_(av_times))
+            _filter = and_(_filter, Entry.selected_time.in_(av_times))
 
         if len(users) > 0:
             _filter = and_(_filter, Entry.user.in_(users))
