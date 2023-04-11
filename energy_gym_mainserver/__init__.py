@@ -1,13 +1,13 @@
 from loguru import logger
 
 from .log import init_logger
+from .app import run_app
 from .app import build_app
 from .managers import AvailableTimeCreatorManager
 from .managers import EntryCreateOpeningManager
 from .managers import VisitCreatorManager
 from .controllers import ControllerFactory
 from .controllers import EntryDBController
-from .configmodule import config
 
 
 def start():
@@ -36,14 +36,7 @@ def start():
         visit_creator_manager.start()
         logger.success('VisitCreatorManager запущен')
 
-        logger.info('Сборка сервера')
-        app = build_app()
-        logger.info('Запуск сервера')
-        app.run(
-            host=config.local_server.host,
-            port=config.local_server.port,
-            use_reloader=False
-        )
+        run_app(build_app())
     except KeyboardInterrupt:
         av_time_creator_manager.join()
         entry_create_opening_manager.join()

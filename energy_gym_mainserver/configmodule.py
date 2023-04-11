@@ -25,8 +25,9 @@ class AvailableTimeSettings(Fieldset):
 
 class LocalServerSettings(Fieldset):
 
-    host = Field[str]('0.0.0.0').label('Адрес')
-    port = Field[int](5010).label('Порт')
+    host    = Field[str]('0.0.0.0').label('Адрес')
+    port    = Field[int](5010).label('Порт')
+    threads = Field[int](4).label('Количество потоков сервера')
 
     @property
     def address(self):
