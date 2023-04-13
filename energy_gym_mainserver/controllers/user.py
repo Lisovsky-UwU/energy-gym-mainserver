@@ -4,7 +4,7 @@ from typing import Dict
 from typing import Tuple
 from typing import Union
 from typing import Iterable
-from typing import Optional
+from loguru import logger
 
 from ..exceptions import LogicError
 from ..services import UserDBService
@@ -59,6 +59,7 @@ class UserDBController:
             )
             service.commit()
 
+            logger.trace(f'Были созданы пользователи: {list(user.id for user in result_list)}')
             return self.__to_tuple_model__(result_list)
 
 
@@ -69,6 +70,7 @@ class UserDBController:
             service.update(self.__correlate_orm__(user, data))
             service.commit()
 
+            logger.trace(f'Были обновлены данные для пользователя с ID {user_id}: {data.dict()}')
             return dto.UserModel.from_orm(user)
 
 
@@ -88,6 +90,7 @@ class UserDBController:
             
             service.commit()
 
+            logger.trace(f'Были обновлены данные для пользователей: {list(user.id for user in result_list)}')
             return self.__to_tuple_model__(result_list)
         
     
@@ -107,6 +110,7 @@ class UserDBController:
             
             service.commit()
 
+            logger.trace(f'Удаление пользователей: {result_dict}')
             return result_dict
 
 

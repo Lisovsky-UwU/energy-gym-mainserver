@@ -2,6 +2,7 @@ from typing import Type
 from typing import Tuple
 from typing import Union
 from typing import Iterable
+from loguru import logger
 
 from . import EntryDBController
 from ..services import VisitDBService
@@ -24,6 +25,7 @@ class VisitDBController:
             )
             service.commit()
 
+            logger.trace(f'Были созданы отметки посещений: {list(visit.id for visit in result)}')
             return self.__to_tuple_model__(result)
 
 
@@ -68,6 +70,7 @@ class VisitDBController:
             
             service.commit()
 
+            logger.trace(f'Были обновлены отметки: {list(visit.dict() for visit in data)}')
             return self.__to_tuple_model__(result_list)
 
 

@@ -2,8 +2,8 @@ from typing import Type
 from typing import Dict
 from typing import Tuple
 from typing import Union
-from typing import Optional
 from typing import Iterable
+from loguru import logger
 
 from . import AvailableTimeDBController
 from ..configmodule import config
@@ -15,7 +15,21 @@ from ..orm import Entry
 
 class EntryDBController:
 
-    entry_is_open = False
+    _entry_is_open = False
+
+
+    @property
+    @classmethod
+    def entry_is_open(cls) -> bool:
+        return cls._entry_is_open
+
+
+    @classmethod
+    def change_entry_open(cls, status: bool):
+        cls._entry_is_open = status
+        if cls._entry_is_open: logger.success('Запись открыта')
+        else: logger.success('Запись закрыта')
+
 
     def __init__(
         self, 
@@ -56,13 +70,19 @@ class EntryDBController:
 
     def create_by_user(self, user_id: int, selected_times_id: Iterable[int]) -> Tuple[dto.EntryModel]:
         if not self.entry_is_open:
+            logger.info(f'Попытка записаться при закрытой записи пользователем {user_id}')
             raise LogicError('Запись закрыта')
 
         if len(selected_times_id) > config.common.max_entry_count:
-            raise LogicError(f'Максимальное число записей для одного пользователя - {config.common.max_entry_count}')
+            logger.info(f'Попытка записаться больще {config.common.max_entry_count} раз на неделю пользователем {user_id}')
+            raise LogicError(f'Максимальное число записей для одного пользователя - {config.common.max_entry_count} пользователем {user_id}')
         
         with self.service_type() as entry_service:
-            self.avtime_controller.check_create_for_id_list(selected_times_id)
+            try:
+                self.avtime_controller.check_create_for_id_list(selected_times_id)
+            except Exception as e:
+                logger.info(f'Ошибка при проверке записей для пользователя {user_id}: {e}')
+                raise
 
             entry_list = entry_service.get_for_user(user_id)
             if len(entry_list) > 0:
@@ -76,6 +96,7 @@ class EntryDBController:
                 for selected_time in selected_times_id
             )
             entry_service.commit()
+            logger.trace(f'Созданы записи для пользователя с ID {user_id} на времена {selected_times_id} ({list(entry.id for entry in entry_list)})')
 
             return self.__to_tuple_model__(entry_list)
 
@@ -90,6 +111,7 @@ class EntryDBController:
             )
             service.commit()
 
+            logger.trace(f'Созданы записи {list(entry.id for entry in entry_list)}')
             return self.__to_tuple_model__(entry_list)
 
 
@@ -107,6 +129,7 @@ class EntryDBController:
                     service.delete(entry, flush=True)
                     result_dict[entry_id] = 'Успешно'
             
+            logger.trace(f'Удаление записей: {result_dict}')
             service.commit()
             return result_dict
 

@@ -3,6 +3,7 @@ from typing import Iterable
 from typing import Tuple
 from typing import Union
 from typing import Dict
+from loguru import logger
 from datetime import datetime
 
 from ..services import AdsDBService
@@ -28,6 +29,7 @@ class AdsDBController:
             )
             service.commit()
 
+            logger.trace(f'Созданы объявления пользователем с ID {user_id}, ID объявлений: {list(ads.id for ads in result_list)}')
             return self.__to_tuple_model__(result_list)
 
 
@@ -69,6 +71,7 @@ class AdsDBController:
 
             service.commit()
 
+            logger.info(f'Были обновлены объявления {list(ads.id for ads in result_list)}')
             return self.__to_tuple_model__(result_list)
         
 
@@ -88,6 +91,7 @@ class AdsDBController:
 
             service.commit()
 
+            logger.info(f'Удаление объявлений: {result_dict}')
             return result_dict
 
 

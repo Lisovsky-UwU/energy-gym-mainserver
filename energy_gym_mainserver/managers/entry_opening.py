@@ -33,13 +33,11 @@ class EntryCreateOpeningManager(Thread):
             )
             
             if cur_time >= open_time and cur_time <= close_time:
-                self.entry_controller_type.entry_is_open = True
-                logger.success('Запись открыта')
+                self.entry_controller_type.change_entry_open(True)
                 sleep_time = (close_time - cur_time).total_seconds()
 
             else:
-                self.entry_controller_type.entry_is_open = False
-                logger.success('Запись закрыта')
+                self.entry_controller_type.change_entry_open(False)
                 sleep_time = (self.get_next_time(config.available_time.opening_time) - cur_time).total_seconds()
 
             logger.debug(f'{self.name} going sleep for {round(sleep_time, 2)} seconds. zzzzz....')

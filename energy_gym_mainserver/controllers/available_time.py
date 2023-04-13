@@ -1,8 +1,8 @@
-from typing import Optional
 from typing import Iterable
 from typing import Type
 from typing import Tuple
 from typing import Union
+from loguru import logger
 
 from ..exceptions import LogicError
 from ..services import AvailableTimeDBService
@@ -25,6 +25,7 @@ class AvailableTimeDBController:
             )
             service.commit()
 
+            logger.trace(f'Созданы времена для записи: {list(avtime.id for avtime in av_times)}')
             return self.__to_tuple_model__(av_times)
 
 

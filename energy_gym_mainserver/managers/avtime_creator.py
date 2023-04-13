@@ -24,7 +24,7 @@ class AvailableTimeCreatorManager(Thread):
 
             cur_date = date.today()
             if cur_date.day >= config.available_time.day_create:
-                logger.debug('Проверка созданных записей на следующий месяц')
+                logger.debug('Проверка созданных времен для записи на следующий месяц')
                 try:
                     next_month = cur_date.replace(cur_date.year, cur_date.month + 1, 1) \
                         .strftime(config.available_time.month_format)

@@ -1,5 +1,6 @@
 from flask import Blueprint
 from flask import request
+from loguru import logger
 
 from .handlers import format_response
 from ...controllers import ControllerFactory
@@ -35,18 +36,19 @@ def create_any_entry():
 @entry_bl.get('/check-open')
 @format_response
 def check_open():
-    return EntryDBController.entry_is_open
+    return ControllerFactory.entry().entry_is_open
 
 
 @entry_bl.post('/change-open')
 @format_response
 def change_open():
     data = request.get_json()
+    controller = ControllerFactory.entry()
     
     if isinstance(data, bool):
-        EntryDBController.entry_is_open = data
+        controller.change_entry_open(data)
 
-    return EntryDBController.entry_is_open
+    return controller.entry_is_open
 
 
 @entry_bl.get('/get')
