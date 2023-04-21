@@ -9,7 +9,7 @@ itsdangerous==2.1.2
 Jinja2==3.1.2
 loguru==0.6.0
 MarkupSafe==2.1.2
-pg8000==1.29.4
+psycopg2==2.9.6
 pydantic==1.10.7
 python-dateutil==2.8.2
 PyYAML==6.0
