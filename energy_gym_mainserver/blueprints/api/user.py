@@ -51,6 +51,15 @@ def edit_entries():
     )
 
 
+@user_bl.put('/edit-password')
+@format_response
+def edit_password():
+    return ControllerFactory.user().user_password_update(
+        int(request.headers.get('user-id')),
+        dto.UserPasswordUpdateRequest.parse_obj(request.get_json())
+    )
+
+
 @user_bl.put('/edit-any')
 @format_response
 def edit_any_entries():

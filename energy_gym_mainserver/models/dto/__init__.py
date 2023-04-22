@@ -15,4 +15,5 @@ from .requests import VisitCreateRequest
 from .requests import VisitUpdateRequest
 from .requests import UserDataUpdateRequest
 from .requests import UserAnyDataUpdateRequest
+from .requests import UserPasswordUpdateRequest
 from .requests import AdsUpdateRequest

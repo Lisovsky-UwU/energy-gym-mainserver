@@ -50,7 +50,11 @@ class UserDataUpdateRequest(BaseModel):
     secondname   : Optional[str]
     surname      : Optional[str]
     group        : Optional[str]
-    password     : Optional[str]
+
+
+class UserPasswordUpdateRequest(BaseModel):
+    old_password : str
+    new_password : str
 
 
 class UserAnyDataUpdateRequest(UserDataUpdateRequest):
