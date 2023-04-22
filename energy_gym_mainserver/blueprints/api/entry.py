@@ -36,7 +36,7 @@ def create_any_entry():
 @entry_bl.get('/check-open')
 @format_response
 def check_open():
-    return ControllerFactory.entry().entry_is_open
+    return ControllerFactory.entry().entry_is_open()
 
 
 @entry_bl.post('/change-open')
@@ -48,7 +48,7 @@ def change_open():
     if isinstance(data, bool):
         controller.change_entry_open(data)
 
-    return controller.entry_is_open
+    return controller.entry_is_open()
 
 
 @entry_bl.get('/get')

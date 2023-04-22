@@ -18,7 +18,6 @@ class EntryDBController:
     _entry_is_open = False
 
 
-    @property
     @classmethod
     def entry_is_open(cls) -> bool:
         return cls._entry_is_open
@@ -69,7 +68,7 @@ class EntryDBController:
 
 
     def create_by_user(self, user_id: int, selected_times_id: Iterable[int]) -> Tuple[dto.EntryModel]:
-        if not self.entry_is_open:
+        if not self.entry_is_open():
             logger.info(f'Попытка записаться при закрытой записи пользователем {user_id}')
             raise LogicError('Запись закрыта')
 
