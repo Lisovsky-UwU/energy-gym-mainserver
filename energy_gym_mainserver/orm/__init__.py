@@ -20,7 +20,6 @@ def session_factory(**kwargs):
 
 
 from .available_time import AvailableTime
-from .token import Token
 from .entry import Entry
 from .visit import Visit
 from .user import User
