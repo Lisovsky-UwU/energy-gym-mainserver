@@ -1,23 +1,20 @@
 from datetime import datetime
-from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import String
-from sqlalchemy import Boolean
-from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from . import Base
+from .mixins import BaseMixin
 
 
-class Ads(Base):
+class Ads(BaseMixin, Base):
     
     __tablename__ = 'ads'
 
-    id              = Column(Integer, primary_key=True, autoincrement=True)
-    create_time     = Column(DateTime, nullable=False, default=datetime.now)
-    body            = Column(String, nullable=False)
-    user            = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    deleted         = Column(Boolean, default=False)
+    create_time : Mapped[datetime] = mapped_column(default=datetime.now)
+    body        : Mapped[str]
+    user        : Mapped[int] = mapped_column(ForeignKey('users.id'))
 
-    users           = relationship('User', back_populates='ads', uselist=False)
+    user_model  : Mapped['User'] = relationship(back_populates='ads', uselist=False)
+
+
+from .user import User

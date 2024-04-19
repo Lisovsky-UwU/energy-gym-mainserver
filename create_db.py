@@ -14,6 +14,7 @@ def start_base():
                     student_card = -77712,
                     firstname    = 'SUPER',
                     secondname   = 'ADMIN',
+                    surname      = '',
                     group        = '-',
                     hid          = '11b788fc93d1332d76460c77b8d4dd406f2f9f8ab6ef5c398df319a69664f0c5', # password: hexReGON14
                     role         = 'ADMIN',

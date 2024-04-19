@@ -1,22 +1,27 @@
-from sqlalchemy import Column, String, Integer, Boolean, Text
-from sqlalchemy.orm import relationship
+from typing import List
+from sqlalchemy import Enum
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from . import Base
+from .mixins import BaseMixin
+from ..models import UserRole
 
 
-class User(Base):
+class User(BaseMixin, Base):
 
     __tablename__ = 'users'
 
-    id            = Column(Integer, primary_key=True, autoincrement=True)
-    student_card  = Column(Integer, nullable=False, unique=True, index=True)
-    firstname     = Column(String(30), nullable=False)
-    secondname    = Column(String(30), nullable=False)
-    surname       = Column(String(30), nullable=False, default='')
-    group         = Column(String(20), nullable=False)
-    hid           = Column(Text, nullable=False)
-    role          = Column(String(15), nullable=False, index=True)
-    deleted       = Column(Boolean, default=False)
+    student_card : Mapped[int] = mapped_column(unique=True, index=True)
+    firstname    : Mapped[str]
+    secondname   : Mapped[str]
+    surname      : Mapped[str]
+    group        : Mapped[str]
+    hid          : Mapped[str]
+    role         : Mapped[UserRole] = mapped_column(Enum(UserRole))
 
-    ads           = relationship('Ads', back_populates='users',  uselist=True)
-    entries       = relationship('Entry', back_populates='users',  uselist=True)
+    ads          : Mapped['Ads'] = relationship(back_populates='user_model',  uselist=True)
+    entries      : Mapped[List['Entry']] = relationship(back_populates='user_model',  uselist=True)
+
+
+from .ads import Ads
+from .entry import Entry

@@ -1,24 +1,24 @@
 from datetime import datetime
-from sqlalchemy import Column
-from sqlalchemy import Integer
-from sqlalchemy import Boolean
-from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from . import Base
+from .mixins import BaseMixin
 
 
-class Entry(Base):
+class Entry(BaseMixin, Base):
     
     __tablename__ = 'entries'
 
-    id              = Column(Integer, primary_key=True, autoincrement=True)
-    create_time     = Column(DateTime, nullable=False, default=datetime.now)
-    selected_time   = Column(Integer, ForeignKey('available_time.id'), nullable=False, index=True)
-    user            = Column(Integer, ForeignKey('users.id'), nullable=False, index=True)
-    deleted         = Column(Boolean, default=False)
+    create_time    : Mapped[datetime] = mapped_column(default=datetime.now)
+    selected_time  : Mapped[int] = mapped_column(ForeignKey('available_time.id'), index=True)
+    user           : Mapped[int] = mapped_column(ForeignKey('users.id'), index=True)
 
-    available_time  = relationship('AvailableTime', back_populates='entries', uselist=False)
-    visits          = relationship('Visit', back_populates='entries', uselist=True)
-    users           = relationship('User', back_populates='entries', uselist=False)
+    available_time : Mapped['AvailableTime'] = relationship(back_populates='entries', uselist=False)
+    user_model     : Mapped['User'] = relationship(back_populates='entries', uselist=False)
+    visits         : Mapped['Visit'] = relationship(back_populates='entry_model', uselist=True)
+
+
+from .available_time import AvailableTime
+from .user import User
+from .visit import Visit

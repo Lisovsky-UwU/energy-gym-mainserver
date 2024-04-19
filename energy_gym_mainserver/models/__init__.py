@@ -1,1 +1,1 @@
-from .visits_marks import VisitMark
+from .common import VisitMark, UserRole

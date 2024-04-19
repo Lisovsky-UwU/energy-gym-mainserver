@@ -1,27 +1,26 @@
-from sqlalchemy import Column
-from sqlalchemy import String
-from sqlalchemy import Integer
-from sqlalchemy import Boolean
-from sqlalchemy.orm import relationship
+from typing import List
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 
 from . import Base
+from .mixins import BaseMixin
 from ..utils import get_next_month
 
 
-class AvailableTime(Base):
+class AvailableTime(BaseMixin, Base):
     
     __tablename__ = 'available_time'
 
-    id                  = Column(Integer, primary_key=True, autoincrement=True)
-    weekday             = Column(Integer, nullable=False)
-    time                = Column(String, nullable=False)
-    number_of_persons   = Column(Integer, nullable=False)
-    month               = Column(String, nullable=False, default=get_next_month, index=True)
-    deleted             = Column(Boolean, default=False)
+    weekday           : Mapped[int]
+    time              : Mapped[str]
+    number_of_persons : Mapped[int]
+    month             : Mapped[str] = mapped_column(default=get_next_month, index=True)
 
-    entries             = relationship('Entry', back_populates='available_time', uselist=True)
+    entries           : Mapped[List['Entry']] = relationship(back_populates='available_time', uselist=True)
 
 
     @property
     def not_deleted_entries(self):
         return list(entry for entry in self.entries if not entry.deleted)
+
+
+from .entry import Entry
