@@ -1,9 +1,9 @@
 class EnergyGymMainServerException(Exception):
     '''Базовое исключение сервера'''
+    status_code = 400
 
 class APIException(EnergyGymMainServerException):
     '''Исключение при ошибке взаимодействия с API'''
-    status_code = 400
 
 
 class InvalidRequestException(APIException):

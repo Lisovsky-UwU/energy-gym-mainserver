@@ -13,7 +13,7 @@ api.register_blueprint(avtime_bl, url_prefix='/avtime')
 api.register_blueprint(entry_bl, url_prefix='/entry')
 api.register_blueprint(visit_bl, url_prefix='/visit')
 api.register_blueprint(user_bl, url_prefix='/user')
-api.register_blueprint(ads_bl, url_prefix='/ads')
+api.register_blueprint(ads_bl, url_prefix='/gym-news')
 
 
 from . import handlers

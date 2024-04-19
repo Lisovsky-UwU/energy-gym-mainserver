@@ -1,16 +1,13 @@
-from typing import Type
-from typing import Dict
-from typing import Tuple
-from typing import Union
-from typing import Iterable
+from typing import List
 from loguru import logger
+from sqlalchemy import and_
+from sqlalchemy.orm import Session
 
-from . import AvailableTimeDBController
 from ..configmodule import config
-from ..exceptions import LogicError
-from ..services import EntryDBService
+from ..exceptions import LogicError, DataBaseException
 from ..models import dto
-from ..orm import Entry
+from ..utils import get_next_month, get_current_month
+from ..orm import Entry, SessionCtx, AvailableTime
 
 
 class EntryDBController:
@@ -24,143 +21,138 @@ class EntryDBController:
 
 
     @classmethod
-    def change_entry_open(cls, status: bool):
+    def change_entry_open(cls, status: bool) -> bool:
         cls._entry_is_open = status
-        if cls._entry_is_open: logger.success('Запись открыта')
-        else: logger.success('Запись закрыта')
+        if cls._entry_is_open: 
+            logger.success('Запись открыта')
+        else: 
+            logger.success('Запись закрыта')
 
+        return cls.entry_is_open()
 
-    def __init__(
-        self, 
-        entry_service_type: Type[EntryDBService],
-        avtime_controller: AvailableTimeDBController
-    ):
-        self.service_type = entry_service_type
-        self.avtime_controller = avtime_controller
-
-
-    def get_any(
-        self,
-        av_times: Union[Iterable[int], int] = (),
-        users: Union[Iterable[int], int] = (),
-        deleted: bool = False,
-        **kwargs
-    ) -> Tuple[dto.EntryModelExtended]:
-        if isinstance(av_times, int):
-            av_times = [av_times]
-
-        if isinstance(users, int):
-            users = [users]
-
-        with self.service_type() as service:
-            return self.__to_tuple_extended_model__(
-                service.get_for_filter(
-                    av_times = av_times,
-                    users    = users,
-                    deleted  = deleted
-                )
+    def delete_old_entities(self, session: Session, user_id: int):
+        old_entries = session.query(Entry).where(
+            and_(
+                Entry.user == user_id,
+                Entry.deleted == False,
+                AvailableTime.month == get_next_month()
             )
-    
-    
-    def get_for_user(self, user_id: int) -> Tuple[dto.EntryModel]:
-        with self.service_type() as service:
-            return self.__to_tuple_model__(service.get_for_user(user_id))
+        ).all()
+        for old_entry in old_entries:
+            old_entry.deleted = True
 
 
-    def create_by_user(self, user_id: int, selected_times_id: Iterable[int]) -> Tuple[dto.EntryModel]:
+    def create_by_user(self, user_id: int, data: dto.EntryAddByUserRequest) -> List[dto.CreateEntryResponse]:
         if not self.entry_is_open():
-            logger.info(f'Попытка записаться при закрытой записи пользователем {user_id}')
+            logger.warning(f'Попытка записаться при закрытой записи пользователем {user_id}')
             raise LogicError('Запись закрыта')
 
-        if len(selected_times_id) > config.common.max_entry_count:
-            logger.info(f'Попытка записаться больще {config.common.max_entry_count} раз на неделю пользователем {user_id}')
+        if len(data) > config.common.max_entry_count:
+            logger.warning(f'Попытка записаться больше {config.common.max_entry_count} раз на неделю пользователем {user_id}')
             raise LogicError(f'Максимальное число записей для одного пользователя - {config.common.max_entry_count} пользователем {user_id}')
-        
-        with self.service_type() as entry_service:
-            try:
-                self.avtime_controller.check_create_for_id_list(selected_times_id)
-            except Exception as e:
-                logger.info(f'Ошибка при проверке записей для пользователя {user_id}: {e}')
-                raise
 
-            entry_list = entry_service.get_for_user(user_id)
-            if len(entry_list) > 0:
-                entry_service.delete_for_list(entry_list)
+        result: List[dto.CreateEntryResponse] = list()
+        exist_avtime: List[AvailableTime] = list()
+        with SessionCtx() as session:
+            self.delete_old_entities(session, user_id)
 
-            entry_list = entry_service.create_for_iter(
-                Entry(
+            for selected_time in data.selectedTimes:
+                avtime: AvailableTime | None = session.query(AvailableTime).get(selected_time)
+
+                if avtime is None or avtime.deleted:
+                    logger.warning(f'Попытка записаться на несуществующее время user.id={user_id}')
+                    raise LogicError(f'Время с id={selected_time} не найдено')
+                
+                if avtime.month != get_next_month():
+                    logger.warning(f'Попытка записаться не на следующий месяц user.id={user_id}')
+                    raise LogicError(f'Вы можете записываться только на следующий месяц')
+                
+                if any(avtime.weekday == created_avtime.weekday for created_avtime in exist_avtime):
+                    logger.warning(f'Попытка записаться на один день user.id={user_id}')
+                    raise LogicError(f'На один день возможно записаться только единожды')
+                
+                exist_avtime.append(avtime)
+
+                if session.query(Entry).where(
+                    and_(
+                        Entry.available_time == selected_time,
+                        Entry.deleted == False
+                    )
+                ).count() > avtime.number_of_persons:
+                    result.append(dto.CreateEntryResponse(
+                        selectedTime=selected_time,
+                        error=True,
+                        text='Закончились места для записи'
+                    ))
+                    continue
+                
+                entry = Entry(
                     selected_time = selected_time,
                     user          = user_id
                 )
-                for selected_time in selected_times_id
-            )
-            entry_service.commit()
-            logger.trace(f'Созданы записи для пользователя с ID {user_id} на времена {selected_times_id} ({list(entry.id for entry in entry_list)})')
+                session.add(entry)
+                session.flush((entry, ))
 
-            return self.__to_tuple_model__(entry_list)
-
-
-    def create(self, payload: Iterable[dto.EntryAddRequest]) -> Tuple[dto.EntryModel]:
-        with self.service_type() as service:
-            entry_list = service.create_for_iter(
-                [
-                    Entry(**entry.dict())
-                    for entry in payload
-                ]
-            )
-            service.commit()
-
-            logger.trace(f'Созданы записи {list(entry.id for entry in entry_list)}')
-            return self.__to_tuple_model__(entry_list)
-
-
-    def delete(self, id_list: Iterable[int], user_id: int, delete_any: bool = False) -> Dict[int, str]:
-        with self.service_type() as service:
-            result_dict = dict()
-
-            for entry_id in id_list:
-                entry = service.get_by_id(entry_id)
-
-                if entry is None or entry.deleted or (not delete_any and entry.user != user_id):
-                    result_dict[entry_id] = 'Запись не найдена'
-
-                else:
-                    service.delete(entry, flush=True)
-                    result_dict[entry_id] = 'Успешно'
-            
-            logger.trace(f'Удаление записей: {result_dict}')
-            service.commit()
-            return result_dict
-
-
-    def from_orm_to_model(self, _from: Entry) -> dto.EntryModel:
-        return dto.EntryModel(
-            id            = _from.id,
-            create_time   = _from.create_time,
-            selected_time = self.avtime_controller.from_orm_to_model(_from.available_time),
-            user          = _from.users,
-        )
-
-
-    def from_orm_to_extended_model(self, _from: Entry) -> dto.EntryModel:
-        return dto.EntryModelExtended(
-            id            = _from.id,
-            create_time   = _from.create_time,
-            selected_time = self.avtime_controller.from_orm_to_extended_model(_from.available_time),
-            user          = _from.users,
-            deleted       = _from.deleted,
-        )
-
-
-    def __to_tuple_model__(self, data: Iterable[Entry]) -> Tuple[dto.EntryModel]:
-        return tuple(
-            self.from_orm_to_model(entry)
-            for entry in data
-        )
+                result.append(dto.CreateEntryResponse(
+                    selectedTime=selected_time,
+                    error=False
+                ))
+                logger.success(f'Создана запись пользователем user.id={user_id} с entry.id={entry.id} на время available_time.id={selected_time}')
+        
+        return result
     
 
-    def __to_tuple_extended_model__(self, data: Iterable[Entry]) -> Tuple[dto.EntryModelExtended]:
-        return tuple(
-            self.from_orm_to_extended_model(entry)
-            for entry in data
-        )
+    def create(self, data: dto.EntryAddRequest) -> dto.GetEntryAnyResponse:
+        with SessionCtx() as session:
+            entry = Entry(
+                selected_time = data.selectedTime,
+                user          = data.user
+            )
+            session.add(entry)
+            logger.success(f'Создана запись entry.id={entry.id} на время available_time.id={entry.selected_time}')
+            return dto.GetEntryAnyResponse.from_orm(entry)
+
+
+    def get_for_user(self, user_id: int, month: str = None)-> dto.GetEntryForUserResponse:
+        if month is None:
+            month = get_current_month()
+
+        with SessionCtx() as session:
+            return [
+                dto.GetEntryForUserResponse.from_orm(entry)
+                for entry in session.query(Entry)
+                    .where(
+                        and_(
+                            Entry.deleted == False,
+                            Entry.user == user_id,
+                            AvailableTime.month == month
+                        )
+                    )
+            ]
+
+
+    def get(self, weekday: int = None, get_deleted = False) -> List[dto.GetEntryAnyResponse]:
+        _filter = True
+
+        if weekday is not None:
+            _filter = and_(_filter, AvailableTime.weekday == weekday)
+        
+        if not get_deleted:
+            _filter = and_(_filter, Entry.deleted == False)
+
+        with SessionCtx() as session:
+            return [
+                dto.GetEntryAnyResponse.from_orm(entry)
+                for entry in session.query(Entry).where(_filter).all()
+            ]
+
+    def delete(self, id: int, user_id: int, delete_any: bool = False):
+        with SessionCtx() as session:
+            entry: Entry | None = session.query(Entry).get(id)
+            if entry is None or entry.deleted or (not delete_any and entry.user != user_id):
+                raise DataBaseException('Запись не найдена')
+            
+            entry.deleted = True
+            session.commit()
+
+        logger.success(f'Удалена запись id={id} пользователем user.id={user_id}')

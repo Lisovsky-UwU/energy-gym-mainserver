@@ -1,14 +1,10 @@
-from typing import Type
-from typing import Iterable
-from typing import Tuple
-from typing import Union
-from typing import Dict
+from typing import Type, Iterable, Tuple, Union, Dict
 from loguru import logger
 from datetime import datetime
 
 from ..services import AdsDBService
 from ..models import dto
-from ..orm import Ads
+from ..orm import Ads, SessionCtx
 
 
 class AdsDBController:
@@ -17,8 +13,9 @@ class AdsDBController:
         self.service_type = ads_service_type
 
 
-    def create(self, user_id: int, payload: Iterable[str]) -> Tuple[dto.AdsModel]:
+    def create(self, user_id: int, payload: dto.AdsCreateRequest) -> dto.AdsModel:
         with self.service_type() as service:
+            
             result_list = service.create_for_iter(
                 Ads(
                     create_time = datetime.now(),

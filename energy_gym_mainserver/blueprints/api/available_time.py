@@ -1,53 +1,68 @@
-from flask import Blueprint
-from flask import request
+from loguru import logger
+from flask import Blueprint, request
+from sqlalchemy import and_
 
 from .handlers import format_response
+from ...orm import AvailableTime, SessionCtx
 from ...utils import get_next_month
 from ...models import dto
-from ...controllers import ControllerFactory
 
 
-avtime_bl = Blueprint('avtime', 'avtime')
+avtime_bl = Blueprint('avtime', __name__)
 
 
 @avtime_bl.post('/create')
 @format_response
 def create_avtime():
-    data = request.get_json()
-    if not isinstance(data, list):
-        data = [data]
+    data = dto.AvailableTimeAddRequest.parse_obj(request.json)
+    with SessionCtx() as session:
+        avtime = AvailableTime(
+            weekday = data.weekday,
+            time = data.time,
+            number_of_persons = data.numberOfPersons,
+            month = data.month,
+        )
+        session.add(avtime)
+        session.commit()
+        logger.success(f'Создано время для записи с id={avtime.id}')
 
-    return ControllerFactory.avtime().create(
-        dto.AvailableTimeAddRequest.parse_obj(avtime)
-        for avtime in data
-    )
+        return dto.AvailableTimeResponse.from_orm(avtime, calculate_available=False)
 
 
 @avtime_bl.get('/get')
 @format_response
 def get_avtimes():
-    return ControllerFactory.avtime().get_any(months = get_next_month())
+    with SessionCtx() as session:
+        return [
+            dto.AvailableTimeResponse.from_orm(avtime)
+            for avtime in session.query(AvailableTime)
+                .where(
+                    and_(
+                        AvailableTime.deleted == False,
+                        AvailableTime.month == get_next_month()
+                    )
+                )
+                .all()
+        ]
 
 
 @avtime_bl.post('/get-any')
 @format_response
 def get_any_avtimes():
-    controller = ControllerFactory.avtime()
-    try:
-        data = request.get_json()
-    except:
-        return controller.get_any()
-
-    return controller.get_any(**data)
+    with SessionCtx() as session:
+        return [
+            dto.AvailableTimeAnyResponse.from_orm(avtime)
+            for avtime in session.query(AvailableTime).all()
+        ]
 
 
 @avtime_bl.put('/edit')
 @format_response
 def edit_avtime():
-    return {'result': 'in develop...'}
+    return dto.InDevelopResponse()
 
 
 @avtime_bl.delete('/delete')
 @format_response
 def delete_avtime():
-    return {'result': 'in develop...'}
+    return dto.InDevelopResponse()

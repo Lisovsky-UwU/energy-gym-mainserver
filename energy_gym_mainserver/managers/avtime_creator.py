@@ -61,7 +61,7 @@ class AvailableTimeCreatorManager(Thread):
                 dto.AvailableTimeAddRequest(
                     weekday           = weekday,
                     time              = time,
-                    number_of_persons = config.available_time.persons_numb,
+                    numberOfPersons = config.available_time.persons_numb,
                     month             = month
                 )
                 for time in time_list

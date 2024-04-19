@@ -1,9 +1,4 @@
-from typing import Type
-from typing import List
-from typing import Dict
-from typing import Tuple
-from typing import Union
-from typing import Iterable
+from typing import Type, List, Dict, Tuple, Union, Iterable
 from loguru import logger
 
 from ..exceptions import LogicError
