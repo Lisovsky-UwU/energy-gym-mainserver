@@ -3,18 +3,18 @@ from datetime import date
 from loguru import logger
 from typing import List
 from time import sleep
+from sqlalchemy import and_
 
-from ..controllers import AvailableTimeDBController
+from ..orm import SessionCtx, AvailableTime
 from ..configmodule import config
-from ..models import dto
+from ..utils import get_next_month
 
 
 class AvailableTimeCreatorManager(Thread):
 
-    def __init__(self, avtime_controller: AvailableTimeDBController):
+    def __init__(self):
         super().__init__(daemon=True)
         self.__alive__ = True
-        self.avtime_controller = avtime_controller
         self.name = 'AvailableTimeCreator-Manager'
 
 
@@ -25,30 +25,30 @@ class AvailableTimeCreatorManager(Thread):
             cur_date = date.today()
             if cur_date.day >= config.available_time.day_create:
                 logger.debug('Проверка созданных времен для записи на следующий месяц')
-                try:
-                    next_month = cur_date.replace(cur_date.year, cur_date.month + 1, 1) \
-                        .strftime(config.available_time.month_format)
-                except ValueError:
-                    next_month = cur_date.replace(cur_date.year + 1, 1, 1) \
-                        .strftime(config.available_time.month_format)
+                next_month = get_next_month()
 
-                avtimes_db = self.avtime_controller.get_any(
-                    months  = next_month,
-                    deleted = True
-                )
+                with SessionCtx() as session:
+                    avtimes_db = session.query(AvailableTime).where(
+                        and_(
+                            AvailableTime.month == next_month,
+                            AvailableTime.deleted == False
+                        )
+                    ).all()
 
-                if len(avtimes_db) == 0: # 6 дней * 4 времени в день = 24 времени на месяц
-                    logger.info('Создание времен на следующий месяц')
-                    self.avtime_controller.create(
-                        self.get_avtimes_add(next_month)
-                    )
-                    logger.success('Были созданы времена на следующий месяц')
+                    if len(avtimes_db) == 0: # 6 дней * 4 времени в день = 24 времени на месяц
+                        logger.info('Создание времен на следующий месяц')
+                        session.add_all(
+                            self.get_avtimes_add(next_month)
+                        )
+                        logger.success('Были созданы времена на следующий месяц')
+                    
+                    session.commit()
 
             logger.trace(f'{self.name} going sleep. zzzzz....')
             sleep(60 * 10)
 
 
-    def get_avtimes_add(self, month: str) -> List[dto.AvailableTimeAddRequest]:
+    def get_avtimes_add(self, month: str) -> List[AvailableTime]:
         '''
         Здесь происходит генерация моделей на создания времени для записи
         по захардкоженным данным
@@ -58,10 +58,10 @@ class AvailableTimeCreatorManager(Thread):
         time_list = [ '16:00', '17:30', '19:00', '20:30' ]
         for weekday in range(6):
             result_list.extend(
-                dto.AvailableTimeAddRequest(
+                AvailableTime(
                     weekday           = weekday,
                     time              = time,
-                    numberOfPersons = config.available_time.persons_numb,
+                    number_of_persons = config.available_time.persons_numb,
                     month             = month
                 )
                 for time in time_list
