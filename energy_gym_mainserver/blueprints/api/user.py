@@ -90,6 +90,9 @@ def edit_user():
 def edit_password():
     data = dto.UserPasswordUpdateRequest.parse_obj( request.json )
 
+    if len(data.newPassword) < 8:
+        raise LogicError('Пароль должен быть не меньше 8 символов')
+
     with SessionCtx() as session:
         user = get_auth_from_db(session)
         if generate_hid(user.student_card, data.oldPassword) != user.hid:
