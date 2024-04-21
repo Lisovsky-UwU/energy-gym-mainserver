@@ -43,6 +43,7 @@ def get_ads():
             dto.AdsResponse.from_orm(ads)
             for ads in session.query(Ads)
                 .where(Ads.deleted == False)
+                .order_by(Ads.id)
                 .all()
         ]
 

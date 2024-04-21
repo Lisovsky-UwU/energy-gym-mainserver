@@ -78,7 +78,7 @@ class EntryDBController:
                         Entry.selected_time == selected_time,
                         Entry.deleted == False
                     )
-                ).count() > avtime.number_of_persons:
+                ).count() >= avtime.number_of_persons:
                     result.append(dto.CreateEntryResponse(
                         selectedTime=selected_time,
                         error=True,
@@ -129,6 +129,7 @@ class EntryDBController:
                         )
                     )
                     .join(Entry.available_time)
+                    .order_by(Entry.id)
                     .all()
             ]
 

@@ -31,7 +31,7 @@ class AdsResponse(BaseModel):
 class AvailableTimeBase(BaseModel):
     id      : int
     weekday : int
-    time    : int
+    time    : str
     month   : str
 
     @classmethod
@@ -54,7 +54,7 @@ class AvailableTimeResponse(AvailableTimeBase):
             weekday   = obj.weekday,
             time      = obj.time,
             month     = obj.month,
-            available = obj.number_of_persons - obj.not_deleted_entries > 0 if calculate_available else True
+            available = obj.number_of_persons - len(obj.not_deleted_entries) > 0 if calculate_available else True
         )
 
 
@@ -70,7 +70,7 @@ class AvailableTimeAnyResponse(AvailableTimeBase):
             time            = obj.time,
             month           = obj.month,
             numberOfPersons = obj.number_of_persons,
-            freeSeats       = obj.number_of_persons - obj.not_deleted_entries
+            freeSeats       = obj.number_of_persons - len(obj.not_deleted_entries)
         )
 
 

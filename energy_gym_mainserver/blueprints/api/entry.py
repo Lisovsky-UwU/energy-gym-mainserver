@@ -49,7 +49,7 @@ def change_open():
 def get_entries():
     return EntryDBController().get_for_user(
         int(request.headers.get('user-id')),
-        request.json.get('month')
+        request.json.get('month') if request.is_json else None
     )
 
 

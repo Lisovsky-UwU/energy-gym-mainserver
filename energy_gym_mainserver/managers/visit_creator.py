@@ -56,7 +56,7 @@ class VisitCreatorManager(Thread):
 
         with SessionCtx() as session:
             for day in range(1, now.day):
-                logger.debug(f'Проверка созданных отметок на {now.day} день месяца')
+                logger.debug(f'Проверка созданных отметок на {day} день месяца')
                 created_date = date(now.year, now.month, day)
 
                 # На воскресенье записи нет, так что скипаем

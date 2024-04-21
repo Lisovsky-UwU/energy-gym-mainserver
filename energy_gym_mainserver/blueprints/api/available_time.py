@@ -42,6 +42,7 @@ def get_avtimes():
                         AvailableTime.month == get_next_month()
                     )
                 )
+                .order_by(AvailableTime.id)
                 .all()
         ]
 
