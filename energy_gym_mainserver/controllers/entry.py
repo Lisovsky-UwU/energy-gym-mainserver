@@ -37,17 +37,17 @@ class EntryDBController:
                 Entry.deleted == False,
                 AvailableTime.month == get_next_month()
             )
-        ).all()
+        ).join(Entry.available_time).all()
         for old_entry in old_entries:
             old_entry.deleted = True
 
 
     def create_by_user(self, user_id: int, data: dto.EntryAddByUserRequest) -> List[dto.CreateEntryResponse]:
-        if not self.entry_is_open():
-            logger.warning(f'Попытка записаться при закрытой записи пользователем {user_id}')
-            raise LogicError('Запись закрыта')
+        # if not self.entry_is_open():
+        #     logger.warning(f'Попытка записаться при закрытой записи пользователем {user_id}')
+        #     raise LogicError('Запись закрыта')
 
-        if len(data) > config.common.max_entry_count:
+        if len(data.selectedTimes) > config.common.max_entry_count:
             logger.warning(f'Попытка записаться больше {config.common.max_entry_count} раз на неделю пользователем {user_id}')
             raise LogicError(f'Максимальное число записей для одного пользователя - {config.common.max_entry_count} пользователем {user_id}')
 
@@ -75,7 +75,7 @@ class EntryDBController:
 
                 if session.query(Entry).where(
                     and_(
-                        Entry.available_time == selected_time,
+                        Entry.selected_time == selected_time,
                         Entry.deleted == False
                     )
                 ).count() > avtime.number_of_persons:
@@ -128,6 +128,8 @@ class EntryDBController:
                             AvailableTime.month == month
                         )
                     )
+                    .join(Entry.available_time)
+                    .all()
             ]
 
 

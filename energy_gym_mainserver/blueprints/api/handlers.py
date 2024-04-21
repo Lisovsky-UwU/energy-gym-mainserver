@@ -1,11 +1,11 @@
 import json
 import flask
+from loguru import logger
 from functools import wraps
 from pydantic import BaseModel
 
 from . import api
-from ...exceptions import TokenException
-from ...exceptions import InvalidRequestException
+from ...exceptions import EnergyGymMainServerException, TokenException, InvalidRequestException
 from ...configmodule import config
 
 
@@ -39,6 +39,9 @@ def json_chek():
 
 @api.errorhandler(Exception)
 def error_handle(error: Exception) -> flask.Response:
+    if not isinstance(error, EnergyGymMainServerException):
+        logger.exception(error)
+
     response = flask.jsonify(
         {
             'error': True,

@@ -1,3 +1,4 @@
+from typing import List
 from datetime import datetime
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import relationship, Mapped, mapped_column
@@ -16,7 +17,7 @@ class Entry(BaseMixin, Base):
 
     available_time : Mapped['AvailableTime'] = relationship(back_populates='entries', uselist=False)
     user_model     : Mapped['User'] = relationship(back_populates='entries', uselist=False)
-    visits         : Mapped['Visit'] = relationship(back_populates='entry_model', uselist=True)
+    visits         : Mapped[List['Visit']] = relationship(back_populates='entry_model', uselist=True)
 
 
 from .available_time import AvailableTime

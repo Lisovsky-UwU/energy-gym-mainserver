@@ -3,7 +3,7 @@ from flask import Blueprint, request
 from sqlalchemy import and_
 
 from .handlers import format_response
-from ...orm import Visit, SessionCtx, AvailableTime
+from ...orm import Visit, SessionCtx, AvailableTime, Entry
 from ...models import dto
 from ...exceptions import DataBaseException
 
@@ -29,7 +29,7 @@ def get_visit():
     with SessionCtx() as session:
         return [
             dto.GetVisitResponse.from_orm(visit)
-            for visit in session.query(Visit).where(_filter).all()
+            for visit in session.query(Visit).where(_filter).join(Visit.entry).join(Entry.available_time).all()
         ]
 
 
