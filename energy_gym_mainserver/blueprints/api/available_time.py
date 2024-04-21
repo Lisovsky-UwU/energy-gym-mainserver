@@ -54,15 +54,3 @@ def get_any_avtimes():
             dto.AvailableTimeAnyResponse.from_orm(avtime)
             for avtime in session.query(AvailableTime).all()
         ]
-
-
-@avtime_bl.put('/edit')
-@format_response
-def edit_avtime():
-    return dto.InDevelopResponse()
-
-
-@avtime_bl.delete('/delete')
-@format_response
-def delete_avtime():
-    return dto.InDevelopResponse()

@@ -9,10 +9,6 @@ class SuccessResponse(BaseModel):
     result : bool = True
 
 
-class InDevelopResponse(BaseModel):
-    result : str = 'In develop...'
-
-
 # ---> Ads <---
 
 class AdsResponse(BaseModel):
