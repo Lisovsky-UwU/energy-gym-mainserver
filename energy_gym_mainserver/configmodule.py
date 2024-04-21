@@ -11,7 +11,7 @@ class CommonSettings(Fieldset):
     use_dev               = Field[bool](True).label('Использовать ли окружение разработки')
     token                 = Field[str](str(uuid4())).label('Токен для доступа к серверу')
     max_entry_count       = Field[int](3).label('Максимальное количество записей для одного пользователя')
-    date_format           = Field[str]('%d-%m-%Y').label('Формат для даты')
+    date_format           = Field[str]('%d.%m.%Y').label('Формат для даты')
     visit_manager_timeout = Field[int](60).label('Время сна для менеджера создания отметок')
 
 
@@ -48,12 +48,19 @@ class DataBaseSettings(Fieldset):
         return f'postgresql+{self.engine}://{self.user}:{self.password}@{self.host}:{self.port}/{self.base_name}'
 
 
+class LogSettings(Fieldset):
+
+    level     = Field[str]('INFO').label('Уровень логирования').hint('CRITICAL, ERROR, SUCCESS, INFO, DEBUG, TRACE')
+    retention = Field[int](10).label('Время хранения логов в днях')
+
+
 class Config(Metaconfig):
 
     common          = Field[CommonSettings]().label('Общие настройки')
     available_time  = Field[AvailableTimeSettings]().label('Настройки доступного времени для записи')
     local_server    = Field[LocalServerSettings]().label('Настройки локального сервера')
     database        = Field[DataBaseSettings]().label('Настройки базы данных')
+    log             = Field[LogSettings]().label('Настройка логгирования')
 
 
 config = Config(YAMLFileConfigIO('config.yaml'))
