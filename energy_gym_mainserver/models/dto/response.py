@@ -82,6 +82,7 @@ class UserBaseResponse(BaseModel):
     surname     : str
     group       : str
     studentCard : int
+    role        : str
 
     @classmethod
     def from_orm(cls, obj: Any) -> 'UserBaseResponse':
@@ -91,6 +92,7 @@ class UserBaseResponse(BaseModel):
             surname     = obj.surname,
             group       = obj.group,
             studentCard = obj.student_card,
+            role        = obj.role.name
         )
 
 
