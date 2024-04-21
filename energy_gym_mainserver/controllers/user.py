@@ -74,10 +74,10 @@ class UserDBController:
         with self.service_type() as service:
             user = service.get_by_id(user_id)
 
-            if data.old_password != user.password:
+            if data.oldPassword != user.password:
                 raise LogicError('Неверный прежний пароль')
         
-            user.password = data.new_password
+            user.password = data.newPassword
             service.update(user)
             service.commit()
 

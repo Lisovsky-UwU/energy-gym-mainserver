@@ -1,4 +1,4 @@
-from typing import Optional, List
+from typing import Any, Optional, List, Type
 from pydantic import BaseModel, validator, Field
 from datetime import datetime, date
 
@@ -46,14 +46,18 @@ class EntryAddRequest(BaseModel):
 
 # ---> Users <---
 
+class UserGetRequest(BaseModel):
+    role : Optional[str]
+
+
 class UserCreateRequest(BaseModel):
-    student_card : int
-    firstname    : str
-    secondname   : str
-    surname      : str
-    group        : str
-    password     : str
-    role         : str
+    studentCard : int
+    firstname   : str
+    secondname  : str
+    surname     : str
+    group       : str
+    password    : str
+    role        : str
 
 
 class UserDataUpdateRequest(BaseModel):
@@ -64,15 +68,22 @@ class UserDataUpdateRequest(BaseModel):
 
 
 class UserPasswordUpdateRequest(BaseModel):
-    old_password : str
-    new_password : str
+    oldPassword : str
+    newPassword : str
 
 
 class UserAnyDataUpdateRequest(UserDataUpdateRequest):
     id : int
+    newPassword: Optional[str]
 
 
 # ---> Visit <---
+
+class VisitGetReqeust(BaseModel):
+    date  : Optional[date]
+    time  : Optional[str]
+    month : Optional[str]
+
 
 class VisitCreateRequest(BaseModel):
     date  : date

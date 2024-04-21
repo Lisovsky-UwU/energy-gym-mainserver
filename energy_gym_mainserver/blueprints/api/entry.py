@@ -48,7 +48,8 @@ def change_open():
 @format_response
 def get_entries():
     return EntryDBController().get_for_user(
-        int(request.headers.get('user-id'))
+        int(request.headers.get('user-id')),
+        request.json.get('month')
     )
 
 

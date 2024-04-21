@@ -15,8 +15,10 @@ from .requests import (
     EntryAddByUserRequest,
     EntryAddRequest, 
     UserCreateRequest, 
+    VisitGetReqeust,
     VisitCreateRequest, 
     VisitUpdateRequest, 
+    UserGetRequest,
     UserDataUpdateRequest, 
     UserAnyDataUpdateRequest, 
     UserPasswordUpdateRequest, 
@@ -32,7 +34,9 @@ from .response import (
     AvailableTimeAnyResponse,
     CreateEntryResponse,
     GetEntryForUserResponse,
+    UserBaseResponse,
     UserResponse,
     GetEntryAnyResponse,
-    OpenEntryResponse
+    OpenEntryResponse,
+    GetVisitResponse
 )

@@ -1,55 +1,50 @@
-from flask import Blueprint
-from flask import request
+from loguru import logger
+from flask import Blueprint, request
+from sqlalchemy import and_
 
 from .handlers import format_response
-from ...controllers import ControllerFactory
+from ...orm import Visit, SessionCtx, AvailableTime
 from ...models import dto
+from ...exceptions import DataBaseException
 
 
 visit_bl = Blueprint('visit', 'visit')
 
 
-@visit_bl.post('/create')
-@format_response
-def create_visit():
-    data = request.get_json()
-    if not isinstance(data, list):
-        data = [data]
-
-    return ControllerFactory.visit().create(
-        dto.VisitCreateRequest.parse_obj(visit)
-        for visit in data
-    )
-
-
 @visit_bl.get('/get')
 @format_response
 def get_visit():
-    return ControllerFactory.visit().get_any(
-        users = int(request.headers.get('user-id'))
-    )
+    data = dto.VisitGetReqeust.parse_obj( request.json )
+    _filter = True
 
+    if data.date is not None:
+        _filter = and_(_filter, Visit.date == data.date)
+    
+    if data.time is not None:
+        _filter = and_(_filter, AvailableTime.time == data.time)
 
-@visit_bl.post('/get-any')
-@format_response
-def get_any_visits():
-    controller = ControllerFactory.visit()
-    try:
-        data = request.get_json()
-    except:
-        return controller.get_any()
+    if data.month is not None:
+        _filter = and_(_filter, AvailableTime.month == data.month)
 
-    return controller.get_any(**data)
+    with SessionCtx() as session:
+        return [
+            dto.GetVisitResponse.from_orm(visit)
+            for visit in session.query(Visit).where(_filter).all()
+        ]
 
 
 @visit_bl.put('/edit')
 @format_response
 def edit_visits():
-    data = request.get_json()
-    if not isinstance(data, list):
-        data = [data]
+    data = dto.VisitUpdateRequest.parse_obj( request.json )
 
-    return ControllerFactory.visit().update(
-        dto.VisitUpdateRequest(**user)
-        for user in data
-    )
+    with SessionCtx() as session:
+        visit: Visit | None = session.query(Visit).get(data.id)
+        if visit is None:
+            raise DataBaseException(f'Отметка посещения с id={data.id} не найдена')
+
+        visit.mark = data.mark
+        session.commit()
+        
+        logger.success(f'Изменена отметка посещения id={data.id} на mark={visit.mark}')
+        return dto.GetVisitResponse.from_orm(visit)

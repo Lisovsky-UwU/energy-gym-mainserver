@@ -27,20 +27,20 @@ def start():
         entry_create_opening_manager.start()
         logger.success('EntryCreateOpeningManager запущен')
 
-        logger.info('Запуск VisitCreatorManager')
-        visit_creator_manager = VisitCreatorManager(
-            ControllerFactory.visit(),
-            ControllerFactory.entry(),
-            ControllerFactory.avtime()
-        )
-        visit_creator_manager.start()
-        logger.success('VisitCreatorManager запущен')
+        # logger.info('Запуск VisitCreatorManager')
+        # visit_creator_manager = VisitCreatorManager(
+        #     ControllerFactory.visit(),
+        #     ControllerFactory.entry(),
+        #     ControllerFactory.avtime()
+        # )
+        # visit_creator_manager.start()
+        # logger.success('VisitCreatorManager запущен')
 
         run_app(build_app())
     except KeyboardInterrupt:
         av_time_creator_manager.join()
         entry_create_opening_manager.join()
-        visit_creator_manager.join()
+        # visit_creator_manager.join()
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
-from typing import Any, Type, Optional
+from typing import Any, Optional
 from pydantic import BaseModel
-from datetime import datetime
+import datetime
 
 
 # ---> Common <---
@@ -22,7 +22,7 @@ class AdsResponse(BaseModel):
 
 
     @classmethod
-    def from_orm(cls: Type['AdsResponse'], obj: Any) -> 'AdsResponse':
+    def from_orm(cls, obj: Any) -> 'AdsResponse':
         return AdsResponse(
             id=obj.id,
             body=obj.body,
@@ -39,7 +39,7 @@ class AvailableTimeBase(BaseModel):
     month   : str
 
     @classmethod
-    def from_orm(cls: Type['AvailableTimeBase'], obj: Any) -> 'AvailableTimeBase':
+    def from_orm(cls, obj: Any) -> 'AvailableTimeBase':
         return AvailableTimeBase(
             id        = obj.id,
             weekday   = obj.weekday,
@@ -52,7 +52,7 @@ class AvailableTimeResponse(AvailableTimeBase):
     available : bool
 
     @classmethod
-    def from_orm(cls: Type['AvailableTimeResponse'], obj: Any, calculate_available =True) -> 'AvailableTimeResponse':
+    def from_orm(cls, obj: Any, calculate_available =True) -> 'AvailableTimeResponse':
         return AvailableTimeResponse(
             id        = obj.id,
             weekday   = obj.weekday,
@@ -67,7 +67,7 @@ class AvailableTimeAnyResponse(AvailableTimeBase):
     freeSeats       : int
 
     @classmethod
-    def from_orm(cls: Type['AvailableTimeAnyResponse'], obj: Any) -> 'AvailableTimeAnyResponse':
+    def from_orm(cls, obj: Any) -> 'AvailableTimeAnyResponse':
         return AvailableTimeAnyResponse(
             id              = obj.id,
             weekday         = obj.weekday,
@@ -80,8 +80,7 @@ class AvailableTimeAnyResponse(AvailableTimeBase):
 
 # ---> User <---
 
-class UserResponse(BaseModel):
-    id          : int
+class UserBaseResponse(BaseModel):
     firstname   : str
     secondname  : str
     surname     : str
@@ -89,7 +88,21 @@ class UserResponse(BaseModel):
     studentCard : int
 
     @classmethod
-    def from_orm(cls: type['UserResponse'], obj: Any) -> 'UserResponse':
+    def from_orm(cls, obj: Any) -> 'UserBaseResponse':
+        return UserBaseResponse(
+            firstname   = obj.firstname,
+            secondname  = obj.secondname,
+            surname     = obj.surname,
+            group       = obj.group,
+            studentCard = obj.student_card,
+        )
+
+
+class UserResponse(UserBaseResponse):
+    id : int
+
+    @classmethod
+    def from_orm(cls, obj: Any) -> 'UserResponse':
         return UserResponse(
             id          = obj.id,
             firstname   = obj.firstname,
@@ -113,7 +126,7 @@ class GetEntryForUserResponse(BaseModel):
     selectedTime : AvailableTimeBase
 
     @classmethod
-    def from_orm(cls: Type['GetEntryForUserResponse'], obj: Any) -> 'GetEntryForUserResponse':
+    def from_orm(cls, obj: Any) -> 'GetEntryForUserResponse':
         return GetEntryForUserResponse(
             id           = obj.id,
             selectedTime = AvailableTimeBase.from_orm(obj.available_time)
@@ -126,13 +139,33 @@ class GetEntryAnyResponse(BaseModel):
     user         : UserResponse
 
     @classmethod
-    def from_orm(cls: Type['GetEntryAnyResponse'], obj: Any) -> 'GetEntryAnyResponse':
+    def from_orm(cls, obj: Any) -> 'GetEntryAnyResponse':
         return GetEntryAnyResponse(
-            id = obj.id,
+            id           = obj.id,
             selectedTime = AvailableTimeBase.from_orm(obj.available_time),
-            user = UserResponse.from_orm(obj.user_model)
+            user         = UserResponse.from_orm(obj.user_model)
         )
 
 
 class OpenEntryResponse(BaseModel):
     status : bool
+
+
+# ---> Entry <---
+
+class GetVisitResponse(BaseModel):
+    id    : int
+    date  : datetime.date
+    entry : GetEntryForUserResponse
+    user  : UserResponse
+    mark  : int
+
+    @classmethod
+    def from_orm(cls, obj: Any) -> 'GetVisitResponse':
+        return GetVisitResponse(
+            id    = obj.id,
+            date  = obj.date,
+            entry = GetEntryForUserResponse.from_orm(obj.entry_model),
+            user  = UserResponse.from_orm(obj.entry_model.user_model),
+            mark  = obj.mark
+        )

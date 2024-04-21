@@ -1,3 +1,4 @@
+from typing import Union
 from loguru import logger
 from flask import Blueprint, request
 from sqlalchemy.orm import Session
@@ -11,7 +12,7 @@ from ...exceptions import DataBaseException
 ads_bl = Blueprint('ads', __name__)
 
 
-def _get_ads(session: Session, id: int) -> Ads | None:
+def _get_ads(session: Session, id: int) -> Union[Ads, None]:
     ads: Ads | None = session.query(Ads).where(Ads.deleted == False).get(id)
     if ads is None:
         raise DataBaseException(f'Объявление не найдено')
