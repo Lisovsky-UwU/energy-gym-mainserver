@@ -27,7 +27,8 @@ class VisitCreatorManager(Thread):
             for entry in session.query(Entry).where(
                 and_(
                     AvailableTime.month == month,
-                    AvailableTime.weekday == created_date.weekday()
+                    AvailableTime.weekday == created_date.weekday(),
+                    Entry.deleted == False
                 )
             ).join(Entry.available_time).all()
         )
@@ -38,7 +39,8 @@ class VisitCreatorManager(Thread):
         count = session.query(Visit).where(
             and_(
                 AvailableTime.month == month,
-                AvailableTime.weekday == created_date.weekday()
+                AvailableTime.weekday == created_date.weekday(),
+                Visit.deleted == False
             )
         ) \
             .join(Visit.entry_model) \

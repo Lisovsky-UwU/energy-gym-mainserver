@@ -11,7 +11,7 @@ from ...exceptions import DataBaseException
 visit_bl = Blueprint('visit', 'visit')
 
 
-@visit_bl.get('/get')
+@visit_bl.post('/get')
 @format_response
 def get_visit():
     data = dto.VisitGetReqeust.parse_obj( request.json )
@@ -29,7 +29,7 @@ def get_visit():
     with SessionCtx() as session:
         return [
             dto.GetVisitResponse.from_orm(visit)
-            for visit in session.query(Visit).where(_filter).join(Visit.entry).join(Entry.available_time).all()
+            for visit in session.query(Visit).where(_filter).join(Visit.entry_model).join(Entry.available_time).all()
         ]
 
 

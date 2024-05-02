@@ -13,8 +13,8 @@ ads_bl = Blueprint('ads', __name__)
 
 
 def _get_ads(session: Session, id: int) -> Union[Ads, None]:
-    ads: Ads | None = session.query(Ads).where(Ads.deleted == False).get(id)
-    if ads is None:
+    ads: Ads | None = session.query(Ads).get(id)
+    if ads is None or ads.deleted:
         raise DataBaseException(f'Объявление не найдено')
     return ads
 

@@ -108,6 +108,7 @@ class UserResponse(UserBaseResponse):
             surname     = obj.surname,
             group       = obj.group,
             studentCard = obj.student_card,
+            role        = obj.role.name
         )
 
 
@@ -154,7 +155,7 @@ class OpenEntryResponse(BaseModel):
 class GetVisitResponse(BaseModel):
     id    : int
     date  : datetime.date
-    entry : GetEntryForUserResponse
+    # entry : GetEntryForUserResponse
     user  : UserResponse
     mark  : int
 
@@ -163,7 +164,7 @@ class GetVisitResponse(BaseModel):
         return GetVisitResponse(
             id    = obj.id,
             date  = obj.date,
-            entry = GetEntryForUserResponse.from_orm(obj.entry_model),
+            # entry = GetEntryForUserResponse.from_orm(obj.entry_model),
             user  = UserResponse.from_orm(obj.entry_model.user_model),
             mark  = obj.mark
         )
