@@ -134,19 +134,25 @@ class EntryDBController:
             ]
 
 
-    def get(self, weekday: int = None, get_deleted = False) -> List[dto.GetEntryAnyResponse]:
+    def get(self, weekday: int = None, month: str = None, get_deleted = False) -> List[dto.GetEntryAnyResponse]:
         _filter = True
 
         if weekday is not None:
             _filter = and_(_filter, AvailableTime.weekday == weekday)
         
+        if month is not None:
+            _filter = and_(_filter, AvailableTime.month == month)
+
         if not get_deleted:
             _filter = and_(_filter, Entry.deleted == False)
 
         with SessionCtx() as session:
             return [
                 dto.GetEntryAnyResponse.from_orm(entry)
-                for entry in session.query(Entry).where(_filter).all()
+                for entry in session.query(Entry)
+                    .join(Entry.available_time)
+                    .where(_filter)
+                    .all()
             ]
 
     def delete(self, id: int, user_id: int, delete_any: bool = False):

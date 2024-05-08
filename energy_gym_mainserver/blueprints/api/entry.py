@@ -58,6 +58,7 @@ def get_entries():
 def get_any_entries():
     return EntryDBController().get(
         request.json.get('weekday'),
+        request.json.get('month'),
         request.json.get('deleted', False)
     )
 
