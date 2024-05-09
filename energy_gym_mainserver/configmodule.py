@@ -48,6 +48,25 @@ class DataBaseSettings(Fieldset):
         return f'postgresql+{self.engine}://{self.user}:{self.password}@{self.host}:{self.port}/{self.base_name}'
 
 
+class ReportSettings(Fieldset):
+
+    format_day    = Field[str]('%d.%m').label('Формат даты в отчетах')
+    mark_skip     = Field[str]('-').label('Отметка о пропкусе в отчете')
+    mark_presence = Field[str]('+').label('Отметка о присутствии в отчете')
+    mark_valid    = Field[str]('*').label('Отметка об уважительном пропуске в отчете')
+    mark_canceled = Field[str]('#').label('Отметка при отмененном занятии')
+
+    def get_for_mark(self, mark: int) -> str:
+        if mark == 0:
+            return self.mark_skip
+        elif mark == 1:
+            return self.mark_presence
+        elif mark == 2:
+            return self.mark_valid
+        else:
+            return self.mark_canceled
+
+
 class LogSettings(Fieldset):
 
     level     = Field[str]('INFO').label('Уровень логирования').hint('CRITICAL, ERROR, SUCCESS, INFO, DEBUG, TRACE')
@@ -60,6 +79,7 @@ class Config(Metaconfig):
     available_time  = Field[AvailableTimeSettings]().label('Настройки доступного времени для записи')
     local_server    = Field[LocalServerSettings]().label('Настройки локального сервера')
     database        = Field[DataBaseSettings]().label('Настройки базы данных')
+    report          = Field[ReportSettings]().label('Настройки отчетов')
     log             = Field[LogSettings]().label('Настройка логгирования')
 
 

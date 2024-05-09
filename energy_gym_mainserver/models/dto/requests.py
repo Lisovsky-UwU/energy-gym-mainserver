@@ -79,3 +79,11 @@ class VisitGetReqeust(BaseModel):
 class VisitUpdateRequest(BaseModel):
     id   : int
     mark : int
+
+
+# ---> Report <---
+
+class GetVisitsReportRequest(BaseModel):
+    startDate : date
+    endDate   : date
+    group     : Optional[str]

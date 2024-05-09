@@ -10,7 +10,8 @@ from .requests import (
     UserPasswordUpdateRequest, 
     AdsCreateRequest,
     AdsUpdateRequest,
-    DeleteRequest
+    DeleteRequest,
+    GetVisitsReportRequest
 )
 from .response import (
     AdsResponse,

@@ -22,6 +22,10 @@ class User(BaseMixin, Base):
     ads          : Mapped['Ads'] = relationship(back_populates='user_model',  uselist=True)
     entries      : Mapped[List['Entry']] = relationship(back_populates='user_model',  uselist=True)
 
+    @property
+    def fullname(self) -> str:
+        return f'{self.secondname} {self.firstname} {self.surname}'
+
 
 from .ads import Ads
 from .entry import Entry

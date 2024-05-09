@@ -19,9 +19,10 @@ def format_response(func):
 
 @api.after_request
 def response_format_handler(response: flask.Response):
-    body = response.json
-    if not (isinstance(body, dict) and body.get('error', False)):
-        response.data = json.dumps({'error': False, 'data': body})
+    if response.is_json:
+        body = response.json
+        if not (isinstance(body, dict) and body.get('error', False)):
+            response.data = json.dumps({'error': False, 'data': body})
     return response
 
 
