@@ -161,6 +161,9 @@ class EntryDBController:
             if entry is None or entry.deleted or (not delete_any and entry.user != user_id):
                 raise DataBaseException('Запись не найдена')
             
+            if entry.available_time.month != get_next_month():
+                raise LogicError('Можно удалять записи только на следующий месяц')
+            
             entry.deleted = True
             session.commit()
 
