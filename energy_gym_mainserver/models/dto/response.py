@@ -168,3 +168,20 @@ class GetVisitResponse(BaseModel):
             user  = UserResponse.from_orm(obj.entry_model.user_model),
             mark  = obj.mark
         )
+
+
+# ---> New <---
+
+class NewResponse(BaseModel):
+    id         : int
+    body       : str
+    createTime : str
+
+
+    @classmethod
+    def from_orm(cls, obj: Any) -> 'NewResponse':
+        return NewResponse(
+            id=obj.id,
+            body=obj.body,
+            createTime=obj.create_time.strftime('%d.%m.%Y')
+        )

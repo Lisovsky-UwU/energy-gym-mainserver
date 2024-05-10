@@ -87,3 +87,15 @@ class GetVisitsReportRequest(BaseModel):
     startDate : date
     endDate   : date
     group     : Optional[str]
+
+
+# ---> New <---
+
+class NewCreateRequest(BaseModel):
+    body : str
+
+
+class NewUpdateRequest(BaseModel):
+    id   : int
+    body : str
+

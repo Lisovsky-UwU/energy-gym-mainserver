@@ -12,7 +12,7 @@ from ...exceptions import DataBaseException
 ads_bl = Blueprint('ads', __name__)
 
 
-def _get_ads(session: Session, id: int) -> Union[Ads, None]:
+def _get_ads(session: Session, id: int) -> Ads:
     ads: Ads | None = session.query(Ads).get(id)
     if ads is None or ads.deleted:
         raise DataBaseException(f'Объявление не найдено')

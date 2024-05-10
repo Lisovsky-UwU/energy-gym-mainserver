@@ -11,7 +11,9 @@ from .requests import (
     AdsCreateRequest,
     AdsUpdateRequest,
     DeleteRequest,
-    GetVisitsReportRequest
+    GetVisitsReportRequest,
+    NewCreateRequest,
+    NewUpdateRequest
 )
 from .response import (
     AdsResponse,
@@ -24,5 +26,6 @@ from .response import (
     UserResponse,
     GetEntryAnyResponse,
     OpenEntryResponse,
-    GetVisitResponse
+    GetVisitResponse,
+    NewResponse
 )

@@ -51,3 +51,4 @@ from .user import User
 from .entry import Entry
 from .visit import Visit
 from .ads import Ads
+from .new import New
