@@ -1,9 +1,9 @@
-from flask import Blueprint
-from flask import request
+from flask import Blueprint, request
 
 from .handlers import format_response
 from ...controllers import EntryDBController
 from ...models import dto
+from ...utils import get_current_month, get_next_month
 
 
 entry_bl = Blueprint('entry', 'entry')
@@ -44,13 +44,17 @@ def change_open():
     
 
 
-@entry_bl.get('/get')
+@entry_bl.post('/get')
 @format_response
 def get_entries():
-    return EntryDBController().get_for_user(
-        int(request.headers.get('user-id')),
-        request.json.get('month') if request.is_json else None
-    )
+    month = request.json.get('month')
+    if month is not None:
+        if month == 'current':
+            month = get_current_month()
+        elif month == 'next':
+            month = get_next_month()
+
+    return EntryDBController().get_for_user( int(request.headers.get('user-id')), month )
 
 
 @entry_bl.post('/get-any')
