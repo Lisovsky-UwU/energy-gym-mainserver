@@ -1,3 +1,4 @@
+from flask.json.provider import DefaultJSONProvider
 from flask import Flask
 from loguru import logger
 from waitress import serve
@@ -14,14 +15,17 @@ def build_app() -> Flask:
     logger.info('Регистрация шаблонов')
     app.register_blueprint(api_bl, url_prefix='/api/v1')
 
-    class JSONEncoder(app.json_encoder):
+    class JSONEncoder(DefaultJSONProvider):
+        def __init__(self, app):
+            super().__init__(app)
+
         def default(self, obj):
             if hasattr(obj, 'dict'):
                 return obj.dict()
             else:
-                return super().default(obj)
+                return super().default(self, obj)
 
-    app.json_encoder = JSONEncoder
+    app.json = JSONEncoder(app)
 
     if config.common.use_dev:
         logger.debug('Используется окружение разработки')
