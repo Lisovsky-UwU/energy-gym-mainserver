@@ -4,10 +4,13 @@ from energy_gym_mainserver.models import UserRole
 
 def start_base():
     try:
-        print('Создание таблиц в БД...')
+        print('Создание БД...')
         Base.metadata.create_all(engine)
+        print('Таблицы созданы')
         with SessionCtx() as session:
-            if session.query(User).where(User.role == UserRole.ADMIN).count == 0:
+            print('Проверка существования админа по умолчанию')
+            if session.query(User).where(User.role == UserRole.ADMIN and User.deleted == False).count() == 0:
+                print('Админ по умолчанию отсутствует, создаем')
                 session.add(
                     User(
                         student_card = -77712,
@@ -19,11 +22,14 @@ def start_base():
                         role         = 'ADMIN',
                     )
                 )
+                print('Админ успешно создан (login=-77712, password=hexReGON14)')
                 session.commit()
+            else:
+                print('Админ в БД уже существует')
     except Exception as e:
         print(f'Ошибка создания таблиц: {e}')
     else:
-        print('Таблицы успешно созданы')
+        print('БД успешно создана')
 
 if __name__ == '__main__':
     start_base()
