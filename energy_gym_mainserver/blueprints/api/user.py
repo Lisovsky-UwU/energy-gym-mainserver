@@ -41,6 +41,9 @@ def update_user_data(user: User, upd_data: dto.UserDataUpdateRequest):
 def create_user():
     data = dto.UserCreateRequest.parse_obj( request.json )
     with SessionCtx() as session:
+        if session.query(User).where(User.student_card == data.studentCard).first() is not None:
+            raise LogicError(f'Пользователь со студенческим {data.studentCard} уже существует')
+
         user = User(
             student_card = data.studentCard,
             firstname    = data.firstname,
