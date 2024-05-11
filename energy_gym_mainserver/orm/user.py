@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 from sqlalchemy import Enum
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 
@@ -17,9 +17,11 @@ class User(BaseMixin, Base):
     surname      : Mapped[str]
     group        : Mapped[str]
     hid          : Mapped[str]
+    image        : Mapped[Optional[str]]
     role         : Mapped[UserRole] = mapped_column(Enum(UserRole))
 
     ads          : Mapped['Ads'] = relationship(back_populates='user_model',  uselist=True)
+    news         : Mapped['New'] = relationship(back_populates='user_model',  uselist=True)
     entries      : Mapped[List['Entry']] = relationship(back_populates='user_model',  uselist=True)
 
     @property
@@ -28,4 +30,5 @@ class User(BaseMixin, Base):
 
 
 from .ads import Ads
+from .new import New
 from .entry import Entry

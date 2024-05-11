@@ -1,26 +1,25 @@
-from energy_gym_mainserver.orm import Base
-from energy_gym_mainserver.orm import engine
-from energy_gym_mainserver.orm import User
-from energy_gym_mainserver.services import UserDBService
+from energy_gym_mainserver.orm import Base, engine, User, SessionCtx
+from energy_gym_mainserver.models import UserRole
 
 
 def start_base():
     try:
         print('Создание таблиц в БД...')
         Base.metadata.create_all(engine)
-        with UserDBService() as service:
-            service.create(
-                User(
-                    student_card = -77712,
-                    firstname    = 'SUPER',
-                    secondname   = 'ADMIN',
-                    surname      = '',
-                    group        = '-',
-                    hid          = '11b788fc93d1332d76460c77b8d4dd406f2f9f8ab6ef5c398df319a69664f0c5', # password: hexReGON14
-                    role         = 'ADMIN',
+        with SessionCtx() as session:
+            if session.query(User).where(User.role == UserRole.ADMIN).count == 0:
+                session.add(
+                    User(
+                        student_card = -77712,
+                        firstname    = 'SUPER',
+                        secondname   = 'ADMIN',
+                        surname      = '',
+                        group        = '-',
+                        hid          = '11b788fc93d1332d76460c77b8d4dd406f2f9f8ab6ef5c398df319a69664f0c5', # password: hexReGON14
+                        role         = 'ADMIN',
+                    )
                 )
-            )
-            service.commit()
+                session.commit()
     except Exception as e:
         print(f'Ошибка создания таблиц: {e}')
     else:
