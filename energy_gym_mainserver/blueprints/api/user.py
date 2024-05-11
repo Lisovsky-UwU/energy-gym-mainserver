@@ -48,9 +48,10 @@ def create_user():
             surname      = data.surname,
             group        = data.group,
             hid          = generate_hid(data.studentCard, data.password),
-            role         = UserRole.STUDENT.name,
+            role         = UserRole[data.role],
         )
         session.add(user)
+        session.flush((user, ))
         logger.success(f'Создан новоый пользователь id={user} пользователем с id={request.headers.get("user-id")}')
         
         return dto.UserResponse.from_orm(user)

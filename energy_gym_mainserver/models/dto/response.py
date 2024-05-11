@@ -1,5 +1,6 @@
 from typing import Any, Optional
 from pydantic import BaseModel
+from enum import Enum
 import datetime
 
 
@@ -108,7 +109,7 @@ class UserResponse(UserBaseResponse):
             surname     = obj.surname,
             group       = obj.group,
             studentCard = obj.student_card,
-            role        = obj.role.name
+            role        = obj.role.name if isinstance(obj.role, Enum) else obj.role
         )
 
 
