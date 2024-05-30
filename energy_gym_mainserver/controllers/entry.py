@@ -43,9 +43,9 @@ class EntryDBController:
 
 
     def create_by_user(self, user_id: int, data: dto.EntryAddByUserRequest) -> List[dto.CreateEntryResponse]:
-        # if not self.entry_is_open():
-        #     logger.warning(f'Попытка записаться при закрытой записи пользователем {user_id}')
-        #     raise LogicError('Запись закрыта')
+        if not self.entry_is_open():
+            logger.warning(f'Попытка записаться при закрытой записи пользователем {user_id}')
+            raise LogicError('Запись закрыта')
 
         if len(data.selectedTimes) > config.common.max_entry_count:
             logger.warning(f'Попытка записаться больше {config.common.max_entry_count} раз на неделю пользователем {user_id}')
