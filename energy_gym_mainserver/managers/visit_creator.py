@@ -38,8 +38,7 @@ class VisitCreatorManager(Thread):
     def create_if_not_exists(self, month: str, created_date: date, session: Session):
         count = session.query(Visit).where(
             and_(
-                AvailableTime.month == month,
-                AvailableTime.weekday == created_date.weekday(),
+                Visit.date == created_date,
                 Visit.deleted == False
             )
         ) \

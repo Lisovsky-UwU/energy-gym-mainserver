@@ -23,7 +23,7 @@ def build_app() -> Flask:
             if hasattr(obj, 'dict'):
                 return obj.dict()
             else:
-                return super().default(self, obj)
+                return super().default(obj)
 
     app.json = JSONEncoder(app)
 
