@@ -69,7 +69,7 @@ class VisitsReport:
             
             user_dict[user][visit.date.strftime('%d.%m')] = config.report.get_for_mark(visit.mark)
 
-        user_dict = dict(sorted(user_dict.items()))
+        user_dict = dict(sorted(user_dict.items(), key=lambda e: e[0].fullname))
 
         outio = io.BytesIO()
 
