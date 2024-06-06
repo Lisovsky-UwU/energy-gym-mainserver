@@ -2,6 +2,7 @@ from threading import Thread
 from sqlalchemy import and_, func
 from sqlalchemy.orm import Session
 from datetime import date, datetime, timedelta
+from calendar import monthrange
 from loguru import logger
 from time import sleep
 
@@ -54,24 +55,20 @@ class VisitCreatorManager(Thread):
             logger.info(f'Отметки на {created_date.strftime(config.common.date_format)} уже существуют')
 
 
-    def create_for_prev_days(self):
+    def create_for_current_month(self, session: Session):
         now = datetime.now()
         current_month = get_current_month()
 
-        with SessionCtx() as session:
-            for day in range(1, now.day):
-                created_date = date(now.year, now.month, day)
-                # На воскресенье записи нет, так что скипаем
-                if created_date.weekday() == 6:
-                    logger.trace(f'Пропущен {created_date.strftime(config.common.date_format)} т.к. это воскресенье')
-                    continue
+        for day in range(1, monthrange(now.year, now.month)[1] + 1):
+            created_date = date(now.year, now.month, day)
+            # На воскресенье записи нет, так что скипаем
+            if created_date.weekday() == 6:
+                logger.trace(f'Пропущен {created_date.strftime(config.common.date_format)} т.к. это воскресенье')
+                continue
 
-                logger.debug(f'Проверка созданных отметок на {created_date.strftime(config.common.date_format)}')
+            logger.debug(f'Проверка созданных отметок на {created_date.strftime(config.common.date_format)}')
 
-                self.create_if_not_exists(current_month, created_date, session)
-            
-            session.commit()
-            logger.success('Созданные отметки успешно сохранены в БД')
+            self.create_if_not_exists(current_month, created_date, session)
 
 
     def check_blocked_users(self, session: Session):
@@ -167,17 +164,12 @@ class VisitCreatorManager(Thread):
 
 
     def run(self):
-        self.create_for_prev_days()
-
         while self.__alive__:
             logger.trace(f'{self.name} awaken')
 
             with SessionCtx() as session:
-                self.create_if_not_exists(
-                    get_current_month(), 
-                    datetime.now().date(), 
-                    session
-                )
+                logger.info('Проверка созданных пользователей на текущий месяц')
+                self.create_for_current_month(session)
                 session.commit()
                 logger.success('Созданные отметки успешно сохранены в БД')
 
