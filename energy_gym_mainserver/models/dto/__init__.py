@@ -4,6 +4,7 @@ from .requests import (
     UserCreateRequest, 
     VisitGetReqeust,
     VisitUpdateRequest, 
+    CancelLessonRequest,
     UserGetRequest,
     UserDataUpdateRequest, 
     UserAnyDataUpdateRequest, 

@@ -1,6 +1,7 @@
 from loguru import logger
 from flask import Blueprint, request
 from sqlalchemy import and_
+from datetime import datetime
 
 from .handlers import format_response
 from ...orm import Visit, SessionCtx, AvailableTime, Entry
@@ -48,3 +49,31 @@ def edit_visits():
         
         logger.success(f'Изменена отметка посещения id={data.id} на mark={visit.mark}')
         return dto.GetVisitResponse.from_orm(visit)
+
+
+@visit_bl.post('/cancel-lesson')
+@format_response
+def cancle_lesson():
+    data = dto.CancelLessonRequest.parse_obj( request.json )
+
+    with SessionCtx() as session:
+        visits = (
+            session.query(Visit)
+                .join(Visit.entry_model)
+                .join(Entry.available_time)
+                .where(
+                    and_(
+                        Visit.deleted == False,
+                        Visit.date == data.date,
+                        AvailableTime.time == data.time
+                    )
+                )
+                .all()
+        )
+        for visit in visits:
+            visit.mark = 3
+        
+        session.commit()
+        logger.success(f'Занятие на {data.date} в {data.time} отменено')
+
+        return dto.SuccessResponse()

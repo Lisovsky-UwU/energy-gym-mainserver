@@ -81,6 +81,11 @@ class VisitUpdateRequest(BaseModel):
     mark : int
 
 
+class CancelLessonRequest(BaseModel):
+    date : date
+    time : str
+
+
 # ---> Report <---
 
 class GetVisitsReportRequest(BaseModel):
