@@ -80,6 +80,7 @@ class VisitCreatorManager(Thread):
                 )
             ).all()
 
+        current_date = datetime.now().date()
         for user in blocked_users:
             skiped_marks = session.query(Visit) \
                 .where(
@@ -87,7 +88,8 @@ class VisitCreatorManager(Thread):
                         Entry.user == user.id,
                         Visit.mark == 0,
                         Visit.deleted == False,
-                        AvailableTime.month == get_current_month()
+                        AvailableTime.month == get_current_month(),
+                        Visit.date < current_date
                     )
                 ) \
                 .join(Visit.entry_model) \
@@ -113,6 +115,7 @@ class VisitCreatorManager(Thread):
                     Visit.mark == 0,
                     Visit.deleted == False,
                     AvailableTime.month == get_current_month(),
+                    Visit.date < datetime.now().date()
                 )
             )
             .group_by(Entry.user)
