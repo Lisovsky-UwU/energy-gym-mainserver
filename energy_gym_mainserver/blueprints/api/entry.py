@@ -4,6 +4,7 @@ from .handlers import format_response
 from ...controllers import EntryDBController
 from ...models import dto
 from ...utils import get_current_month, get_next_month
+from ...configmodule import config
 
 
 entry_bl = Blueprint('entry', 'entry')
@@ -30,7 +31,8 @@ def create_any_entry():
 @format_response
 def check_open():
     return dto.OpenEntryResponse(
-        status=EntryDBController.entry_is_open()
+        status=EntryDBController.entry_is_open(),
+        openingDay=config.available_time.opening_day
     )
 
 

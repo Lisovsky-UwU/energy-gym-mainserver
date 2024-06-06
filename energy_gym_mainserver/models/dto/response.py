@@ -148,7 +148,8 @@ class GetEntryAnyResponse(BaseModel):
 
 
 class OpenEntryResponse(BaseModel):
-    status : bool
+    status     : bool
+    openingDay : int
 
 
 # ---> Entry <---

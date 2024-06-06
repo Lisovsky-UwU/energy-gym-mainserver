@@ -23,6 +23,10 @@ class AvailableTimeSettings(Fieldset):
     persons_numb   = Field[int](12).label('Количество свободных мест в создаваемых временах')
     opening_time   = Field[str]('12:00:00 25').label('Время открытия записи в формате ЧЧ:ММ:СС ДД')
 
+    @property
+    def opening_day(self) -> int:
+        return int(self.opening_time.split(' ')[1])
+
 
 class LocalServerSettings(Fieldset):
 
