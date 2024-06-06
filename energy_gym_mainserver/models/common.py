@@ -15,3 +15,4 @@ class UserRole(Enum):
     STUDENT = 'STUDENT'
     COACH = 'COACH'
     ADMIN = 'ADMIN'
+    BLOCKED = 'BLOCKED'

@@ -13,6 +13,7 @@ class CommonSettings(Fieldset):
     max_entry_count       = Field[int](3).label('Максимальное количество записей для одного пользователя')
     date_format           = Field[str]('%d.%m.%Y').label('Формат для даты')
     visit_manager_timeout = Field[int](60).label('Время сна для менеджера создания отметок')
+    max_skiped_visit      = Field[int](3).label('Количество пропусков для блокировки')
 
 
 class AvailableTimeSettings(Fieldset):
