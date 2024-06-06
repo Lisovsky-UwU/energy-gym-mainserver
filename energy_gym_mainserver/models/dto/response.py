@@ -84,6 +84,7 @@ class UserBaseResponse(BaseModel):
     group       : str
     studentCard : int
     role        : str
+    image       : str
 
     @classmethod
     def from_orm(cls, obj: Any) -> 'UserBaseResponse':
@@ -93,7 +94,8 @@ class UserBaseResponse(BaseModel):
             surname     = obj.surname,
             group       = obj.group,
             studentCard = obj.student_card,
-            role        = obj.role.name
+            role        = obj.role.name,
+            image       = obj.image
         )
 
 
@@ -109,6 +111,7 @@ class UserResponse(UserBaseResponse):
             surname     = obj.surname,
             group       = obj.group,
             studentCard = obj.student_card,
+            image       = obj.image,
             role        = obj.role.name if isinstance(obj.role, Enum) else obj.role
         )
 
