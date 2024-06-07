@@ -84,7 +84,7 @@ class UserBaseResponse(BaseModel):
     group       : str
     studentCard : int
     role        : str
-    image       : str
+    image       : Optional[str] = None
 
     @classmethod
     def from_orm(cls, obj: Any) -> 'UserBaseResponse':
